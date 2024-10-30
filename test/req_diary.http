@@ -1,0 +1,29 @@
+### 查看今天日记
+POST http://localhost:5000/diary
+Content-Type: application/json
+
+{
+    "func": "get_today_diary",
+    "param": {
+    }
+}
+
+### 创建今天日记
+POST http://localhost:5000/diary
+Content-Type: application/json
+
+{
+    "func": "create_today_diary",
+    "param": {
+    }
+}
+
+### 获取今天日期
+POST http://localhost:5000/diary
+Content-Type: application/json
+
+{
+    "func": "get_format_date",
+    "param": {
+    }
+}
