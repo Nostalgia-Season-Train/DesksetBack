@@ -6,6 +6,11 @@ SUCCESS_INFO = '成功'
 
 
 @dataclass
+class Success():
+    code: int = 0
+    message: str = '成功'
+
+@dataclass
 class Error():
     code: int
     message: str

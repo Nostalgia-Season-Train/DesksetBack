@@ -1,32 +1,26 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request
 from flask_cors import CORS
 
-from core.setting import setting
-from core.diary import diary
-from core.custom_io import DSS_exchange
+from src.api import DSS_exchange
+from src.feature.diary import diary
 
 FRONT_ADDRESS = "http://localhost:5173"
 
 
-# 初始化服务器
+# 配置服务器
 app = Flask(__name__)
 app.json.sort_keys = False
 app.json.ensure_ascii=False
 CORS(app, origins=[FRONT_ADDRESS])
 
 
+# 注册路由路径
 @app.route("/diary", methods=["POST"])
 def diary_component():
     data = request.get_json()
     return DSS_exchange(diary, data)
 
-@app.route("/setting", methods=["POST"])
-def ref():
-    setting.refresh()
-    return {
-            'message': 'FILE_NO_EXIST',
-            'content': '成功刷新配置！'
-    }
 
+# 运行程序
 if __name__ == '__main__':
     app.run(debug=True)

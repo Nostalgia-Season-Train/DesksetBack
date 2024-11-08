@@ -1,8 +1,8 @@
 import os
 import arrow
 
-from .setting import setting
-from .custom_io import Error
+from src.config import setting
+from src.api import Error
 
 ERR_DIARY_NO_EXIST = Error(code='2000', message='无此日记！')
 ERR_DIARY_ALREADY_EXIST = Error(code='2001', message='日记已存在！')
