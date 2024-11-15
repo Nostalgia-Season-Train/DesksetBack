@@ -1,28 +1,26 @@
 import os
 import arrow
 
-from src.config import setting
-from src.api import Error
+from deskset.core.config import setting
+from deskset.core.standard import DesksetError
 
-ERR_DIARY_NO_EXIST = Error(code='2000', message='无此日记！')
-ERR_DIARY_ALREADY_EXIST = Error(code='2001', message='日记已存在！')
+ERR_DIARY_NO_EXIST = DesksetError(code=2000, message='无此日记！')
+ERR_DIARY_ALREADY_EXIST = DesksetError(code=2001, message='日记已存在！')
 
 
 class Diary:
-    _dir = ''
-    _format = ''
-    _extn = ''
+    _instance = None
 
     def __new__(cls):
-        if not hasattr(Diary, '_instance'):
-            Diary._instance = object.__new__(cls)
-        return Diary._instance
+        if cls._instance is None:
+            cls._instance = object.__new__(cls)
+        return cls._instance
 
     def __init__(self):
-        if hasattr(self._instance, '_is_init'):
-            return
-        self.refresh()
-        self._is_init = True
+        if hasattr(self._instance, '_is_init') == False:
+            self._is_init = True
+
+            self.refresh()
 
     def refresh(self):
         self._dir = setting.dir
