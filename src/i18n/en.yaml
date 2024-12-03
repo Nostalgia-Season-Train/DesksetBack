@@ -1,5 +1,11 @@
 helloworld: Hello World
 
+# === standard ===
+Success: Success
+Failure: Failure
+Not Sure Success Or Failure: Not sure success or failure
+
+
 # === diary module ===
 diary: Diary
 

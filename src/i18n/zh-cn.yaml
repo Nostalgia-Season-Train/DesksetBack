@@ -1,5 +1,11 @@
 helloworld: 你好，世界
 
+# === standard ===
+Success: 成功
+Failure: 失败
+Not Sure Success Or Failure: 不能确定成功或失败
+
+
 # === 日记模块 ===
 diary: 日记
 
