@@ -1,1 +1,10 @@
 helloworld: 你好，世界
+
+# === 日记模块 ===
+diary: 日记
+
+# 错误信息
+Diary Not Found:            无此日记！
+Diary Already Exist:        日记已经存在！
+Cant Find Nor Create Trash: 不能找到或创建回收站！
+Incorrect Date Format:      日期格式错误！

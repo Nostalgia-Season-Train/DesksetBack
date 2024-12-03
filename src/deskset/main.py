@@ -27,11 +27,13 @@ from fastapi.requests import Request
 from deskset.core.standard import DesksetError
 from fastapi.responses import JSONResponse
 from deskset.presenter.format import format_return
+from http import HTTPStatus
 
 @app.exception_handler(DesksetError)
 async def deskset_error(request: Request, error: DesksetError):
     # JSONResponse 编码默认 utf-8，deskset config 暂时无法影响
     return JSONResponse(
+        status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
         content=format_return(error)
     )
 

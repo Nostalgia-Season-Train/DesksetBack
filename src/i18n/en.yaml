@@ -1,1 +1,10 @@
 helloworld: Hello World
+
+# === diary module ===
+diary: Diary
+
+# Error Information
+Diary Not Found:            Diary not found
+Diary Already Exist:        Diary already exist
+Cant Find Nor Create Trash: Can't find nor create trash folder
+Incorrect Date Format:      Incorrect date format

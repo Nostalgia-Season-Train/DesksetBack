@@ -1,33 +1,24 @@
 import os
 import arrow
+from send2trash import send2trash, TrashPermissionError
 
-from deskset.core.config import setting
+from deskset.core.locale import _t
+from deskset.core.config import config
 from deskset.core.standard import DesksetError
 
-ERR_DIARY_NO_EXIST = DesksetError(code=2000, message='无此日记！')
-ERR_DIARY_ALREADY_EXIST = DesksetError(code=2001, message='日记已存在！')
+ERR_DIARY_NOT_FOUND            = DesksetError(code=2000, message=_t('Diary Not Found'))
+ERR_DIARY_ALREADY_EXIST        = DesksetError(code=2001, message=_t('Diary Already Exist'))
+ERR_CANT_FIND_NOR_CREATE_TRASH = DesksetError(code=2002, message=_t('Cant Find Nor Create Trash'))
+ERR_INCORRECT_DATE_FORMAT      = DesksetError(code=2003, message=_t('Incorrect Date Format'))
 
 
 class Diary:
-    _instance = None
-
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = object.__new__(cls)
-        return cls._instance
-
-    def __init__(self):
-        if hasattr(self._instance, '_is_init') == False:
-            self._is_init = True
-
-            self.refresh()
-
-    def refresh(self):
-        self._dir = setting.dir
-        self._format = setting.format
-
-        # 临时：文件格式
-        self._extn = '.md'
+    def __init__(self, dir, format='YYYY-MM-DD', extn='.md'):
+        self._dir      = dir
+        self._format   = format
+        self._extn     = extn
+        self._language = config.language
+        self._encoding = config.encoding
 
     def __get_diarys(self, dir, format):
         """
@@ -45,7 +36,7 @@ class Diary:
             else:
                 try:
                     base_name = os.path.splitext(name)[0]
-                    arrow.get(base_name, format)  # 检查文件主名是否符合日期格式
+                    arrow.get(base_name, format, locale=self._language)  # 检查文件主名是否符合日期格式
                     diarys.append({
                         'name': name,
                         'path': path
@@ -55,9 +46,6 @@ class Diary:
 
         return diarys
 
-    def get_format_date(self):
-        return arrow.now().format(self._format)
-
     def get_diary_list(self):
         """
         返回日记列表
@@ -66,29 +54,58 @@ class Diary:
         diarys[:] = sorted(diarys, key=lambda diary: diary['name'])
         return diarys
 
-    def get_today_diary(self):
-        """
-        查看今天日记
-        """
-        name = arrow.now().format(self._format) + self._extn
-        path = os.path.join(self._dir, name)
+    # 输入日期（格式：YYYYMMDD，例：20241224）
+    def get_diary_path(self, date):
         try:
-            with open(path, 'r', encoding='utf-8') as f:
-                return f.read()
-        except FileNotFoundError:
-            return ERR_DIARY_NO_EXIST
+            # 根据日记名称日期格式 _format 得到文件主名
+            base_name = arrow.get(date, 'YYYYMMDD', locale=self._language).format(self._format, locale=self._language)
+        except arrow.parser.ParserError:
+            raise ERR_INCORRECT_DATE_FORMAT
+        return os.path.join(self._dir, base_name + self._extn)
 
-    def create_today_diary(self):
+    def read_diary(self, date):
         """
-        创建今天日记
+        读取日记
         """
-        name = arrow.now().format(self._format) + self._extn
-        path = os.path.join(self._dir, name)
-        try:
-            with open(path, 'x', encoding='utf-8'):
-                return
-        except FileExistsError:
+        path = self.get_diary_path(date)
+        if not os.path.exists(path):
+            return ERR_DIARY_NOT_FOUND
+
+        with open(path, 'r', encoding=self._encoding) as f:
+            return f.read()
+
+    def create_diary(self, date):
+        """
+        创建日记
+        """
+        path = self.get_diary_path(date)
+        if os.path.exists(path):
             return ERR_DIARY_ALREADY_EXIST
 
+        with open(path, 'x', encoding=self._encoding):
+            return
 
-diary = Diary()
+    def write_diary(self, date, content):
+        """
+        写入日记
+        """
+        path = self.get_diary_path(date)
+        if not os.path.exists(path):  # 日记不存在则不创建，直接报错
+            return ERR_DIARY_NOT_FOUND
+
+        with open(path, 'w', encoding=self._encoding) as f:
+            f.write(content)
+            return
+
+    def delete_diary(self, date):
+        """
+        删除日记
+        """
+        path = self.get_diary_path(date)
+        if not os.path.exists(path):
+            return ERR_DIARY_NOT_FOUND
+
+        try:
+            send2trash(path)
+        except TrashPermissionError:  # TrashPermissionError：根目录没有回收站，同时 send2trash 也不能创建回收站
+            return ERR_DIARY_ALREADY_EXIST

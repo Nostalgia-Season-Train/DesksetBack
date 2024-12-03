@@ -1,4 +1,7 @@
 from datetime import datetime
+import arrow
+
+from deskset.core.config import config
 
 
 # 日期时间
@@ -14,15 +17,15 @@ class Current:
         if hasattr(self._instance, '_is_init') == False:
             self._is_init = True
 
+            self._language = config.language
+
     # ======== 日期（格式化：数字转字符并补零） ========
     def date_format(self):
-        week = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期天"]
-
         return {
             "year":  str(datetime.now().year ).zfill(4),
             "month": str(datetime.now().month).zfill(2),
             "day":   str(datetime.now().day  ).zfill(2),
-            "week": week[datetime.now().weekday()]
+            "week":  arrow.now().format('dddd', locale=self._language)
         }
 
     # ======== 日期（数字） ========
