@@ -12,7 +12,7 @@ def format_return(result):
             success = False,
             code    = result.code,
             message = result.message,
-            data    = DesksetError.data
+            data    = result.data
         ))
     else:
         return asdict(DesksetReturn(

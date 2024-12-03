@@ -1,7 +1,4 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-
-from deskset.presenter.format import format_return
 
 FRONT_LOCAL_PORT = 5173  # 前端端口号
 SEVER_LOCAL_PORT = 8000  # 后端端口号
@@ -12,6 +9,8 @@ app = FastAPI()
 
 
 # CORS 跨域请求
+from fastapi.middleware.cors import CORSMiddleware
+
 origins = ["http://localhost:" + str(FRONT_LOCAL_PORT)]
 
 app.add_middleware(
@@ -21,6 +20,20 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# 统一错误（异常）处理
+from fastapi.requests import Request
+from deskset.core.standard import DesksetError
+from fastapi.responses import JSONResponse
+from deskset.presenter.format import format_return
+
+@app.exception_handler(DesksetError)
+async def deskset_error(request: Request, error: DesksetError):
+    # JSONResponse 编码默认 utf-8，deskset config 暂时无法影响
+    return JSONResponse(
+        content=format_return(error)
+    )
 
 
 # 路由注册
