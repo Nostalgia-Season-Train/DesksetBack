@@ -11,10 +11,20 @@ TRANSLATION_FILE_FORMAT   = 'yaml'
 TRANSLATION_FILE_ENCODING = 'utf-8'
 
 
-class Translation():
+class Translation:
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = object.__new__(cls)
+        return cls._instance
+
     def __init__(self, locale='en'):
-        self._data   = {}
-        self._locale = locale
+        if not hasattr(self._instance, '_is_init'):
+            self._is_init = True
+
+            self._data   = {}
+            self._locale = locale
 
         # 遍历所有本地化文件
         translations = glob.glob(str(Path(TRANSLATION_FILE_FOLDER) / f'*.{TRANSLATION_FILE_FORMAT}'))
@@ -36,8 +46,7 @@ class Translation():
 
 translator = Translation(locale=config.language)
 
-# 下划线 _ 有时代表不在循环中使用的变量
-# 这里用 _t 代表需要翻译的字符串
+# 下划线 _ 用于命名不在循环中使用的变量，换成 _t 代表需要翻译的字符串
 _t = translator.translate
 
 # 测试：

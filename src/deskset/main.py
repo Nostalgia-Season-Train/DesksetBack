@@ -11,14 +11,14 @@ app = FastAPI()
 # CORS 跨域请求
 from fastapi.middleware.cors import CORSMiddleware
 
-origins = ["http://localhost:" + str(FRONT_LOCAL_PORT)]
+origins = ['http://localhost:' + str(FRONT_LOCAL_PORT)]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=['*'],
+    allow_headers=['*'],
 )
 
 
@@ -53,9 +53,15 @@ app.include_router(router_datetime)
 
 
 # 一个标准接口，测试前端请求
+from deskset.core.locale import _t
+from deskset.presenter.format import format_return
+
 @app.get('/helloworld')
 async def hello_world():
-    return format_return(lambda : 'Hello World')
+    def execute_function():
+        return _t('helloworld')
+
+    return format_return(execute_function())
 
 
 # 启动服务器
