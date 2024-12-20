@@ -6,7 +6,7 @@ import glob, yaml
 
 from deskset.core.config import config
 
-TRANSLATION_FILE_FOLDER   = './src/i18n'
+TRANSLATION_FILE_FOLDER   = './i18n'
 TRANSLATION_FILE_FORMAT   = 'yaml'
 TRANSLATION_FILE_ENCODING = 'utf-8'
 

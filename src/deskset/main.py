@@ -48,7 +48,7 @@ app.include_router(router_diary)
 from deskset.router.greet import router_greet
 app.include_router(router_greet)
 
-from deskset.router.datetime import router_datetime
+from deskset.router.current import router_datetime
 app.include_router(router_datetime)
 
 
@@ -65,6 +65,6 @@ async def hello_world():
 
 
 # 启动服务器
-if __name__ == '__main__':
+def main():
     import uvicorn
     uvicorn.run(app, host='127.0.0.1', port=SEVER_LOCAL_PORT)
