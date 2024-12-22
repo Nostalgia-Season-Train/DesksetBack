@@ -12,7 +12,12 @@ class ObsidianManager:
         os.startfile(f'obsidian://open?path={ self._vault_path }')
         sleep(WAIT_TIME)
 
-    # 打开笔记，note 既可以是 name 也可以是 path/to/name（去掉后缀）
-    def open_note(self, note):
-        os.startfile(f'obsidian://open?path={ self._vault_path }/{ note }')
+    # name 是笔记名称
+    def open_note_by_name(self, name):
+        os.startfile(f'obsidian://open?path={ self._vault_path }/{ name }')
+        sleep(WAIT_TIME)
+
+    # path 是绝对路径
+    def open_note_by_path(self, path):
+        os.startfile(f'obsidian://open?path={ path }')
         sleep(WAIT_TIME)

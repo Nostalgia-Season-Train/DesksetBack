@@ -68,3 +68,8 @@ async def hello_world():
 def main():
     import uvicorn
     uvicorn.run(app, host='127.0.0.1', port=SEVER_LOCAL_PORT)
+
+
+# 开发服务器
+if __name__ == '__main__':
+    main()
