@@ -33,7 +33,7 @@ from http import HTTPStatus
 async def deskset_error(request: Request, error: DesksetError):
     # JSONResponse 编码默认 utf-8，deskset config 暂时无法影响
     return JSONResponse(
-        status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+        # status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
         content=format_return(error)
     )
 

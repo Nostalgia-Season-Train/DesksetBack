@@ -34,7 +34,11 @@ class Win32Device(AbstractDevice):
             "percent": memory.percent
         }
 
-    def disk_partitions(self):
+    def disk_partitions(self, is_format=True):
+        """
+        格式化：返回文件资源管理器显示的可用空间、总大小数据 free、total
+        - 单位 Byte => GB，类型 int => str
+        """
         partitions = []
 
         for partition in psutil.disk_partitions():
@@ -42,9 +46,28 @@ class Win32Device(AbstractDevice):
             partitions.append({
                 "root":    partition.device,
                 "total":   partition_usage.total,
-                "use":     partition_usage.used,
+                "free":    partition_usage.free,
                 "percent": partition_usage.percent
             })
+
+        if is_format:
+            def format_data(data):
+                data = (data >> 20) / 1024
+
+                if  100 <= data:
+                    data = str(int(data))
+                elif 10 <= data and data < 100:
+                    data = int(data * 10) / 10
+                    data = f'{data:.1f}'
+                else:
+                    data = int(data * 100) / 100
+                    data = f'{data:.2f}'
+
+                return data
+
+            for partition in partitions:
+                partition['total'] = format_data(partition['total'])
+                partition['free']  = format_data(partition['free'])
 
         return partitions
 
