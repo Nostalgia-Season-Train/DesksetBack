@@ -1,7 +1,11 @@
 # 日记
+from pathlib import Path
+
 from deskset.core.config import config
 
-from deskset.feature.obsidian import ObsidianManager
+from deskset.feature.obsidian.obsidian import ObsidianManager
+from deskset.feature.obsidian.config.vault import ConfigVault
+from deskset.feature.obsidian.config.vault_plugin import ConfigVaultPlugin
 
 from deskset.core.root_path import RootPath
 from deskset.feature.diary  import DiaryParser
@@ -14,14 +18,17 @@ from deskset.feature.todo     import TodoParser
 class Diary:
     def __init__(self):
         self._obsidian = ObsidianManager(config.obsidian_vault)
+        vault_path = config.obsidian_vault
+        conf_vault  = ConfigVault(vault_path)
+        conf_plugin = ConfigVaultPlugin(vault_path)
 
-        self._root  = RootPath(config.dir)
-        self._diary = DiaryParser(config.format + '.md')  # obsidian 日期格式没有后缀
+        self._root  = RootPath(Path(vault_path) / conf_vault.diary_folder)
+        self._diary = DiaryParser(conf_vault.diary_format + '.md')  # obsidian 日期格式没有后缀
 
         self._file     = TextFile()
-        self._prose    = ProseParser()
-        self._activity = ActivityParser()
-        self._todo     = TodoParser()
+        self._prose    = ProseParser('# 随笔')
+        self._activity = ActivityParser(conf_plugin.activity_heading, conf_plugin.activity_format)  # 动态配置，遵循 Thino
+        self._todo     = TodoParser('# 打卡')
 
     # 日记列表
     def list(self):
@@ -30,6 +37,8 @@ class Diary:
     # 打开日记
     def open(self, date):
         """date 格式：YYYYMMDD"""
+        if self._file.is_open():
+            self._file.close()
         self._file.open(self._root.get_abspath(self._diary.get_diary_relpath(date)))
 
     # 关闭日记
