@@ -11,6 +11,7 @@ from deskset.core.root_path import RootPath
 from deskset.feature.diary  import DiaryParser
 
 from deskset.core.text_file   import TextFile
+from deskset.feature.note     import NoteParser
 from deskset.feature.prose    import ProseParser
 from deskset.feature.activity import ActivityParser
 from deskset.feature.todo     import TodoParser
@@ -26,6 +27,7 @@ class Diary:
         self._diary = DiaryParser(conf_vault.diary_format + '.md')  # obsidian 日期格式没有后缀
 
         self._file     = TextFile()
+        self._note     = NoteParser()
         self._prose    = ProseParser('# 随笔')
         self._activity = ActivityParser(conf_plugin.activity_heading, conf_plugin.activity_format)  # 动态配置，遵循 Thino
         self._todo     = TodoParser('# 打卡')
@@ -51,7 +53,11 @@ class Diary:
 
     # 日记
     def read(self):
-        return self._file.read()
+        meta, content = self._note.metadata_and_content(self._file)
+        return {
+            'meta': meta,
+            'content': content
+        }
 
     # 随笔
     def read_prose(self):
