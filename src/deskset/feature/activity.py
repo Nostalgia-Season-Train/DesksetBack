@@ -16,22 +16,34 @@ class ActivityParser:
         content = []  # 动态内容
         after   = []  # 动态之后的行
 
-        lines = iter(lines)  # 以迭代器遍历
-
-        for line in lines:
-            if line[:-1] == self._heading:
+        # 确保每行只被压入一次：
+        # - 每次压入前，判断 i < len(lines)
+        # - 每次压入后，i++
+        # 注：len(lines: list[str]) 时间开销 O(1)，无需临时变量
+        i = 0
+        while i < len(lines):
+            # [:-1] 去掉换行符
+            if lines[i][:-1] == self._heading:
                 break
-            before.append(line)
+            before.append(lines[i])
+            i += 1
 
-        content.append(line)
-        for line in lines:
-            if line[0] == '#':
+        if i < len(lines):
+            content.append(lines[i])
+            i += 1
+        while i < len(lines):
+            # 是否进入其他标题
+            if lines[i][0] == '#':
                 break
-            content.append(line)
+            content.append(lines[i])
+            i += 1
 
-        after.append(line)
-        for line in lines:
-            after.append(line)
+        if i < len(lines):
+            after.append(lines[i])
+            i += 1
+        while i < len(lines):
+            after.append(lines[i])
+            i += 1
 
         return before, content, after
 

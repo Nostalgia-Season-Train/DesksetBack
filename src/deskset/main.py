@@ -51,6 +51,9 @@ app.include_router(router_greet)
 from deskset.router.current import router_datetime
 app.include_router(router_datetime)
 
+from deskset.router.cloud import router_cloud
+app.include_router(router_cloud)
+
 
 # 一个标准接口，测试前端请求
 from deskset.core.locale import _t

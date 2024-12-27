@@ -10,32 +10,10 @@ class TodoParser:
     def __init__(self, heading: str = '# 打卡') -> None:
         self._heading = heading
 
-    def _get_content_under_title(self, lines: list[str]) -> tuple[list[str], list[str], list[str]]:
-        before  = []
-        content = []
-        after   = []
-
-        lines = iter(lines)
-
-        for line in lines:
-            if line[:-1] == self._heading:
-                break
-            before.append(line)
-
-        content.append(line)
-        for line in lines:
-            if line[0] == '#':
-                break
-            content.append(line)
-
-        after.append(line)
-        for line in lines:
-            after.append(line)
-
-        return before, content, after
-
     def get_todos(self, file: TextFile) -> list[dict[str]]:
-        _, content, _ = self._get_content_under_title(file.read())
+        """解析文件中的任务：- [ ] 任务"""
+        # 暂不考虑次级任务：    - [ ] 次级任务
+        content = file.read()
 
         ast_tokens = mistune.create_markdown(renderer='ast')(''.join(content[1:]))
         ast_back_markdown = MarkdownRenderer()
