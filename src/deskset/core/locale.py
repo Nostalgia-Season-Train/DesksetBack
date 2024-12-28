@@ -41,7 +41,7 @@ class Translation:
 
     def translate(self, id):
         # 没有对应翻译时，返回 id 本身，id+ 代表没有翻译
-        return self._data.get(id, f'id+ {id}')
+        return self._data.get(id, f' t({id}) ')
 
 
 translator = Translation(locale=config.language)

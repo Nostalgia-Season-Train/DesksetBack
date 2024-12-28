@@ -49,7 +49,7 @@ class DiaryParser:
 
             diarys.append({
                     'date': date,
-                    'path': file
+                    'relpath': file
                 })
 
         return sorted(diarys, key=lambda item : item['date'])
@@ -64,3 +64,29 @@ class DiaryParser:
             raise ERR_INCORRECT_DATE_FORMAT
 
         return str(Path(dir) / (stem + extn))
+
+    # 输入：文件（相对路径）、年月（格式：YYYYMM）
+    # 返回：YYYY 年 MM 月中的日记列表
+    def get_diarys_in_a_month(self, files: list[str], yearmonth: str) -> list[dict[str, str]]:
+        try:
+            year:  int = int(arrow.get(yearmonth, 'YYYYMM', locale=self._language).format('YYYY', locale=self._language))
+            month: int = int(arrow.get(yearmonth, 'YYYYMM', locale=self._language).format('MM',   locale=self._language))
+        except arrow.parser.ParserError:
+            raise ERR_INCORRECT_DATE_FORMAT
+
+        from calendar import monthrange
+        day: int = 1
+        max_day: int = monthrange(year, month)[1]
+
+        diarys: list[dict[str, str]] = []
+        while day <= max_day:
+            date = f'{year:04d}{month:02d}{day:02d}'
+            file = self.get_diary_relpath(date)
+            if file in files:
+                diarys.append({
+                        'date': date,
+                        'relpath': file
+                    })
+            day += 1
+
+        return diarys

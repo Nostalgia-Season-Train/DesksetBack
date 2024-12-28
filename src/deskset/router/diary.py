@@ -7,14 +7,14 @@ from deskset.feature.obsidian.obsidian import ObsidianManager
 from deskset.feature.obsidian.config.vault import ConfigVault
 from deskset.feature.obsidian.config.vault_plugin import ConfigVaultPlugin
 
-from deskset.core.root_path import RootPath
-from deskset.feature.diary  import DiaryParser
+from deskset.core.root_path     import RootPath
+from deskset.feature.note.diary import DiaryParser
 
-from deskset.core.text_file   import TextFile
-from deskset.feature.note     import NoteParser
-from deskset.feature.prose    import ProseParser
-from deskset.feature.activity import ActivityParser
-from deskset.feature.todo     import TodoParser
+from deskset.core.text_file        import TextFile
+from deskset.feature.note.note     import NoteParser
+from deskset.feature.note.prose    import ProseParser
+from deskset.feature.note.activity import ActivityParser
+from deskset.feature.note.todo     import TodoParser
 
 class Diary:
     def __init__(self):
@@ -32,9 +32,14 @@ class Diary:
         self._activity = ActivityParser(conf_plugin.activity_heading, conf_plugin.activity_format)  # 动态配置，遵循 Thino
         self._todo     = TodoParser('# 打卡')
 
-    # 日记列表
+    # 日记列表：全部日记
     def list(self):
         return self._diary.get_diarys(self._root.get_files())
+
+    # 日记列表：一个月中的日记
+    def list_a_month(self, date):
+        """date 格式：YYYYMM"""
+        return self._diary.get_diarys_in_a_month(self._root.get_files(), date)
 
     # 打开日记
     def open(self, date):
@@ -82,10 +87,15 @@ from deskset.presenter.format import format_return
 
 router_diary = APIRouter(prefix='/v0/diary', tags=[_t('diary')])
 
-# 日记列表
+# 日记列表：全部日记
 @router_diary.get('/list')
 def list():
     return format_return(diary.list())
+
+# 日记列表：一个月中的日记
+@router_diary.get('/list-a-month/{date}')
+def list_a_month(date):
+    return format_return(diary.list_a_month(date))
 
 # 打开日记
 @router_diary.get('/open/{date}')
