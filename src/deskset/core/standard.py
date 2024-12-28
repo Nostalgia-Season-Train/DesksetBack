@@ -1,4 +1,5 @@
 # 错误
+from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
@@ -21,7 +22,7 @@ class DesksetError(Exception):
         self.message = message
         self.data    = data
 
-    def insert(self, *args: str) -> Exception:
+    def insert(self, *args: str) -> DesksetError:
         """动态注释：注释初值包含占位符 {}，抛出异常时，动态插入错误信息"""
         # 1、初值
         #   yaml 文件：'This is a placeholder: {}': '这是一个占位符：{}'
