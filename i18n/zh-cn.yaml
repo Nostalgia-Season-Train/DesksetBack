@@ -5,6 +5,8 @@ Success: 成功
 Failure: 失败
 Not Sure Success Or Failure: 不能确定成功或失败
 
+'DesksetError Dynamic Message! Extra Placeholder: ': 'DesksetError 动态注释错误！额外占位符：'
+
 
 # === 日记模块 ===
 diary: 日记
