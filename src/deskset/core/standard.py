@@ -38,6 +38,9 @@ class DesksetError(Exception):
             log_error += f'\'{self.message}\'.format{args}'
             logging.error(log_error)
 
+            # 报错后，不替换占位符，返回原字符串
+            return DesksetError(code=self.code, message=self.message)
+
 @dataclass
 class DesksetReturn():
     success: bool = False
