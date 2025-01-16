@@ -1,11 +1,10 @@
-import arrow
 import mistune
 from mistune.renderers.markdown import MarkdownRenderer
 
 from deskset.core.text_file import TextFile
 
 
-# 打卡/任务/待做解析器
+# 打卡/任务/待办解析器
 class TodoParser:
     def __init__(self, heading: str = '# 打卡') -> None:
         self._heading = heading
