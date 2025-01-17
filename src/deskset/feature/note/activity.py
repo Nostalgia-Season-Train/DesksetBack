@@ -64,9 +64,15 @@ class ActivityParser:
             pass
 
         activitys: list[dict[str, str]] = []
-        for item in list_items:
+        for item in list_items:  # 注意：mistune 会去掉行尾空格
             try:
-                activity_create = arrow.get(item, self._format).format(self._format)
+                # 只取开头的时间
+                if len(item) < len(self._format):
+                    continue
+                item_date = item[0: len(self._format)]
+
+                # arrow 格式化时间，没有报错代表格式正确，是一条动态
+                activity_create = arrow.get(item_date, self._format).format(self._format)
                 activitys.append({'create': activity_create,
                                   'content': item[len(activity_create):].strip(' \n')})
             except arrow.parser.ParserError:
