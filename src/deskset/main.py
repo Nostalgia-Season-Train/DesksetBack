@@ -55,6 +55,11 @@ from deskset.router.cloud import router_cloud
 app.include_router(router_cloud)
 
 
+# 插件注册：/api 作为所有插件路由的根路径
+from deskset.router.plugin import router_plugin_root
+app.include_router(router_plugin_root)
+
+
 # 一个标准接口，测试前端请求
 from deskset.core.locale import _t
 from deskset.presenter.format import format_return
