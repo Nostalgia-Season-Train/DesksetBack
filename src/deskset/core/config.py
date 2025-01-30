@@ -1,6 +1,8 @@
 from pathlib import Path
 from dynaconf import Dynaconf
 
+CONFIG_MAIN = './config/app-back.json'  # 主要配置文件的路径
+
 
 class Config(object):
     _instance = None
@@ -20,7 +22,7 @@ class Config(object):
         # 读取设置
         self._setting = Dynaconf(
             envvar_prefix  = 'DYNACONF',
-            settings_files = 'setting.json'
+            settings_files = CONFIG_MAIN
         )
 
         # 语言：默认 中文

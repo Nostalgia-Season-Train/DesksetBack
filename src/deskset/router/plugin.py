@@ -68,7 +68,7 @@ for plugin in get_plugins():
     init = plugin['init']
 
     url = '/' + name
-    url_tags = ['插件：' + name]
+    url_tags = ['API: ' + name]
     router_plugin = APIRouter(prefix=url, tags=url_tags)
 
     module_name = 'deskset.plugin.' + name

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-DEBUG_MODE = True  # 调试模式
+DEBUG_MODE = False  # 调试模式
 
 FRONT_LOCAL_PORT = 5173  # 前端端口号
 SEVER_LOCAL_PORT = 8000  # 后端端口号
