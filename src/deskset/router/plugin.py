@@ -1,7 +1,7 @@
 # 模块导入顺序：core、feature、presenter => 外部插件 => router.plugin
 
 # 获取插件
-# 作用：遍历 ./plugin 目录，找出并返回插件（一个文件夹对应一个插件）
+# 作用：遍历 ./api 目录，找出并返回插件（一个文件夹对应一个插件）
 from pathlib import Path
 from typing import TypedDict
 
@@ -13,7 +13,7 @@ class PluginType(TypedDict):
 def get_plugins() -> list[PluginType]:
     plugins: list[PluginType] = []
 
-    for folder in Path('./plugin').glob('*'):
+    for folder in Path('./api').glob('*'):
         if folder.is_dir():
             name = folder.name
             info = ''
