@@ -14,7 +14,15 @@
 
 
 # standard
-错误及日志
+数字桌搭的错误和异常与 Python 中的不同，更类似于 Go 语言
+- 桌设错误：可以预测的问题
+- 桌设异常：无法预测，但不会使程序崩溃
+
+日志：编码 utf-8
+- INFO     信息
+- WARNING  警告
+- ERROR    错误：桌设异常以错误打印
+- CRITICAL 崩溃
 
 
 # text file

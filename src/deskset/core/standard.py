@@ -52,6 +52,11 @@ class DesksetReturn():
 # 日志
 import logging
 
-from deskset.core.config import config
-
-logging.basicConfig(filename='log/latest.log', filemode='w', encoding=config.encoding)
+logging.basicConfig(
+    filename='log/latest.log',
+    filemode='w+',
+    format='[%(asctime)s] [%(levelname)s]: %(message)s',
+    datefmt='%Y-%M-%d %H:%M:%S',
+    level=logging.INFO,
+    encoding='utf-8'
+)

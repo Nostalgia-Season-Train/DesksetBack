@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 
+DEBUG_MODE = True  # 调试模式
+
 FRONT_LOCAL_PORT = 5173  # 前端端口号
 SEVER_LOCAL_PORT = 8000  # 后端端口号
 
@@ -30,12 +32,28 @@ from deskset.presenter.format import format_return
 from http import HTTPStatus
 
 @app.exception_handler(DesksetError)
-async def deskset_error(request: Request, error: DesksetError):
+def deskset_error(request: Request, err: DesksetError):
     # JSONResponse 编码默认 utf-8，deskset config 暂时无法影响
     return JSONResponse(
         # status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-        content=format_return(error)
+        content=format_return(err)
     )
+
+import logging
+
+@app.exception_handler(Exception)
+def deskset_exception(request: Request, exc: Exception):
+    logging.exception(exc, exc_info=exc)
+    return JSONResponse(
+        status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+        content=str(exc)
+    )
+
+
+# 调试接口
+if DEBUG_MODE:
+    from deskset.router.debug import router_debug
+    app.include_router(router_debug)
 
 
 # 路由注册
