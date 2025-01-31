@@ -72,6 +72,9 @@ app.include_router(router_datetime)
 from deskset.router.cloud import router_cloud
 app.include_router(router_cloud)
 
+from deskset.router.quick import router_quick
+app.include_router(router_quick)
+
 
 # 插件注册：/api 作为所有插件路由的根路径
 from deskset.router.plugin import router_plugin_root
