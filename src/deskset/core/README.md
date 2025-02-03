@@ -1,7 +1,8 @@
 数字桌搭：核心代码 core
 
 # config
-配置
+数字桌搭后端的主要配置
+- 区别于 feature 中 conf 开头的配置，更新需要重启后端
 
 
 # locale

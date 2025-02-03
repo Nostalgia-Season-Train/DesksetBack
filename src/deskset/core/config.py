@@ -1,7 +1,6 @@
-from pathlib import Path
 from dynaconf import Dynaconf
 
-CONFIG_MAIN = './config/app-back.json'  # 主要配置文件的路径
+CONFIG_MAIN = './config/deskset-back.json'
 
 
 class Config(object):
