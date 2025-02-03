@@ -1,10 +1,9 @@
-from pathlib import Path
 from dynaconf import Dynaconf
 
-CONFIG_MAIN = './config/app-back.json'  # 主要配置文件的路径
+CONFIG_OBSIDIAN = './config/app/obsidian.yaml'
 
 
-class Config(object):
+class ConfigAppObsidian:
     _instance = None
 
     def __new__(cls):
@@ -15,20 +14,16 @@ class Config(object):
     def __init__(self):
         if not hasattr(self._instance, '_is_init'):
             self._is_init = True
-
             self.refresh()
 
     def refresh(self):
-        # 读取设置
         self._setting = Dynaconf(
             envvar_prefix  = 'DYNACONF',
-            settings_files = CONFIG_MAIN
+            settings_files = CONFIG_OBSIDIAN
         )
 
-        # 语言：默认 中文
-        # 编码：默认 UTF-8
-        self.language = self._setting.get('language', default='zh-cn')
-        self.encoding = self._setting.get('encoding', default='utf-8')
+        # Obsidian 仓库位置
+        self.obsidian_vault = self._setting.get('obsidian_vault', default='')
 
 
-config = Config()
+config_app_obsidian = ConfigAppObsidian()

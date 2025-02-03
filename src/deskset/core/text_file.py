@@ -1,12 +1,10 @@
 import difflib
 from typing import Callable, Any
 
-from deskset.core.locale import _t
 from deskset.core.config import config
+from deskset.core.locale import _t
 from deskset.core.standard import DesksetError
 
-ERR_FILE_NOT_OPEN       = DesksetError(code=1000, message=_t('请先打开文件'))
-ERR_FILE_NOT_CLOSE      = DesksetError(code=1001, message=_t('请先关闭文件'))
 ERR_FILE_NOT_FIND       = DesksetError(code=1002, message=_t('打开失败，文件不存在'))
 ERR_FILE_CHANGE_OUTSIDE = DesksetError(code=1003, message=_t('文件被外部修改'))
 ERR_FILE_DELETE_OUTSIDE = DesksetError(code=1004, message=_t('文件被外部删除'))
@@ -103,11 +101,14 @@ class Text:
 # - 3、撤销重做：编辑历史
 # 注：创建、删除功能，将由路径相关模块提供
 class TextFile:
-    def __init__(self) -> None:
-        self._encoding: str = config.encoding
-
-        self._path: str = None
-        self._content: Text = None
+    def __init__(self, path: str, encode: str = config.encoding) -> None:
+        try:
+            with open(path, 'r', encoding=encode) as file:
+                self._path = path
+                self._encode = encode
+                self._content = Text(file.readlines())
+        except FileNotFoundError:
+            raise ERR_FILE_NOT_FIND
 
     def undo(self) -> None:
         self._content.undo()
@@ -119,7 +120,7 @@ class TextFile:
     # - 外部更改：不受 TextFile 控制文件更改。比如通过 vsc 修改文件
     def _check_and_sync_outside_change(self) -> bool:
         try:
-            with open(self._path, 'r', encoding=self._encoding) as file:
+            with open(self._path, 'r', encoding=self._encode) as file:
                 text = file.readlines()
                 if difflib.SequenceMatcher(None, self._content.get(), text).ratio() != 1:
                     self._content.set(text)
@@ -129,52 +130,26 @@ class TextFile:
         except FileNotFoundError:
             raise ERR_FILE_DELETE_OUTSIDE
 
-    def is_open(self) -> bool:
-        if self._path is None or self._content is None:
-            return False
-        else:
-            return True
-
-    def open(self, path: str) -> None:
-        if self.is_open():
-            raise ERR_FILE_NOT_CLOSE
-        try:
-            with open(path, 'r', encoding=self._encoding) as file:
-                self._path = path
-                self._content = Text(file.readlines())
-        except FileNotFoundError:
-            raise ERR_FILE_NOT_FIND
-
-    def close(self) -> None:
-        if not self.is_open():
-            raise ERR_FILE_NOT_OPEN
-        self._path = None
-        self._content = None
-
     def path(self) -> str:
-        if not self.is_open():
-            raise ERR_FILE_NOT_OPEN
         return self._path
 
-    def read(self) -> list[str]:
-        if not self.is_open():
-            raise ERR_FILE_NOT_OPEN
+    def encode(self) -> str:
+        return self._encode
 
+    def read(self) -> list[str]:
         self._check_and_sync_outside_change()
 
         return self._content.get()
 
     def write(self, content: list[str]) -> None:
-        if not self.is_open():
-            raise ERR_FILE_NOT_OPEN
-
         if self._check_and_sync_outside_change():
             raise ERR_FILE_CHANGE_OUTSIDE
-        self._content.set(content)
 
         try:
-            with open(self._path, 'r+', encoding=self._encoding) as f:
-                f.write(self._content.get())
+            # 确保在写入文件成功的基础上写入内存：先写入文件，再写入内存
+            with open(self._path, 'r+', encoding=self._encode) as file:
+                file.write(self._content.get())
+                self._content.set(content)
         except FileNotFoundError:
             raise ERR_FILE_DELETE_OUTSIDE
 
