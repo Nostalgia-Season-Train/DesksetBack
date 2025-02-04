@@ -9,7 +9,8 @@ class DiaryManager(ConfAppObserver):
         self.refresh(conf_app.obsidian_vault)
 
     def update(self, conf_app: ConfApp) -> None:
-        self.refresh(conf_app.obsidian_vault)
+        if self.vault != conf_app.obsidian_vault:
+            self.refresh(conf_app.obsidian_vault)
 
     def refresh(self, vault_path: str) -> None:
         try:
