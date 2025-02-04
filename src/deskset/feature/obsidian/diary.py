@@ -1,3 +1,5 @@
+from typing import Optional
+
 from deskset.core.standard import DesksetError
 
 from pathlib import Path
@@ -33,13 +35,13 @@ class Diary:
         self._activity = ActivityParser(conf_plugin.activity_heading, conf_plugin.activity_format)
 
     # 列出一个月中的日记：date 格式 YYYYMM
-    def list_a_month(self, date: str):
+    def list_a_month(self, date: str) -> list:
         return self._diary.get_diarys_in_a_month(self._root.get_files(), date)
 
     # === 读写日记前，先选择日记 ===
 
     # 选择日记：date 格式 YYYYMMDD
-    def choose(self, date: str):
+    def choose(self, date: str) -> None:
         path = self._root.get_abspath(self._diary.get_diary_relpath(date))
 
         if Path(path).is_file():
@@ -48,12 +50,12 @@ class Diary:
             self._file = None
 
     # 在 Obsidian 中打开日记
-    def open_in_obsidian(self):
+    def open_in_obsidian(self) -> None:
         if self._file is not None:
             self._obsidian.open_note_by_path(self._file.path())
 
     # 读取日记
-    def read(self):
+    def read(self) -> Optional[dict]:
         if self._file is not None:
             meta, content = self._note.metadata_and_content(self._file)
             return {
@@ -62,6 +64,27 @@ class Diary:
             }
 
     # 读取日记中的动态
-    def read_activitys(self):
+    def read_activitys(self) -> Optional[list]:
         if self._file is not None:
             return self._activity.get_activitys(self._file)
+
+
+# 适用于没有设置好 Obsidian 仓库的情况
+class EmptyDiary():
+    def __init__(self, vault_path: str) -> None:
+        pass
+
+    def list_a_month(self, date: str) -> list:
+        return []
+
+    def choose(self, date: str) -> None:
+        pass
+
+    def open_in_obsidian(self) -> None:
+        pass
+
+    def read(self) -> Optional[dict]:
+        pass
+
+    def read_activitys(self) -> Optional[list]:
+        pass
