@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from deskset.presenter.format import format_return
-from deskset.feature.device.factory import device
+from deskset.feature.device import device
 
 router_device = APIRouter(prefix='/v0/device', tags=['设备信息'])
 
