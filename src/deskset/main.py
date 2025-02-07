@@ -25,7 +25,7 @@ app = FastAPI()
 # CORS 跨域请求
 from fastapi.middleware.cors import CORSMiddleware
 
-origins = ['http://localhost:' + str(front_port)]
+origins = ['http://127.0.0.1:' + str(front_port)]
 
 app.add_middleware(
     CORSMiddleware,
