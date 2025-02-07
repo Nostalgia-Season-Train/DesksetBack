@@ -1,19 +1,31 @@
-from fastapi import FastAPI
+from deskset.core.standard import logging
 
 DEBUG_MODE = False  # 调试模式
 
-FRONT_LOCAL_PORT = 5173  # 前端端口号
-SEVER_LOCAL_PORT = 8000  # 后端端口号
+if DEBUG_MODE:
+    logging.info('Running on Debug Mode')
+
+
+# 设置前后端端口号
+from deskset.core.config import config
+
+sever_port = config.sever_port
+front_port = config.front_port
+
+logging.info(f'Sever Port {sever_port}')
+logging.info(f'Front Port {front_port}')
 
 
 # FastAPI 程序
+from fastapi import FastAPI
+
 app = FastAPI()
 
 
 # CORS 跨域请求
 from fastapi.middleware.cors import CORSMiddleware
 
-origins = ['http://localhost:' + str(FRONT_LOCAL_PORT)]
+origins = ['http://localhost:' + str(front_port)]
 
 app.add_middleware(
     CORSMiddleware,
@@ -38,8 +50,6 @@ def deskset_error(request: Request, err: DesksetError):
         # status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
         content=format_return(err)
     )
-
-import logging
 
 @app.exception_handler(Exception)
 def deskset_exception(request: Request, exc: Exception):
@@ -99,7 +109,7 @@ async def hello_world():
 # 启动服务器
 def main():
     import uvicorn
-    uvicorn.run(app, host='127.0.0.1', port=SEVER_LOCAL_PORT)
+    uvicorn.run(app, host='127.0.0.1', port=sever_port)
 
 
 # 开发服务器

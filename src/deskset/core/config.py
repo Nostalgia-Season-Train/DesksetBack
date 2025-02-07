@@ -29,5 +29,9 @@ class Config(object):
         self.language = self._setting.get('language', default='zh-cn')
         self.encoding = self._setting.get('encoding', default='utf-8')
 
+        # 端口
+        self.sever_port: int = int(self._setting.get('sever-port', default='8000'))
+        self.front_port: int = int(self._setting.get('front-port', default='5173'))
+
 
 config = Config()
