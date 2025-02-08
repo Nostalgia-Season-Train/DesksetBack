@@ -1,4 +1,4 @@
-from deskset.core.standard import logging
+from deskset.core.log import logging
 
 DEVELOP_ENV = True  # 开发环境
 DEBUG_MODE = False  # 调试模式

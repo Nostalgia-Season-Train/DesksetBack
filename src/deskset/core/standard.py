@@ -1,8 +1,8 @@
-# 错误
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from deskset.core.log import logging
 from deskset.core.locale import _t
 
 @dataclass
@@ -47,16 +47,3 @@ class DesksetReturn():
     code:    int  = -1
     message: str  = _t('Not Sure Success Or Failure')
     data:    Any  = None
-
-
-# 日志
-import logging
-
-logging.basicConfig(
-    filename='log/latest.log',
-    filemode='w+',
-    format='[%(asctime)s] [%(levelname)s]: %(message)s',
-    datefmt='%Y-%M-%d %H:%M:%S',
-    level=logging.INFO,
-    encoding='utf-8'
-)
