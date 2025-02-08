@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 
 from deskset.core.log import logging
@@ -7,9 +9,9 @@ CONFIG_MAIN_ENCODE = 'utf-8'
 
 
 class Config(object):
-    _instance = None
+    _instance: Config = None
 
-    def __new__(cls) -> None:
+    def __new__(cls) -> Config:
         if cls._instance is None:
             cls._instance = object.__new__(cls)
         return cls._instance
@@ -51,7 +53,7 @@ class Config(object):
                     if type(data.get(config_key)) != config_type:
                         continue
 
-                    # 修改属性
+                    # 修改属性。注：setattr 可能丢掉类型检查
                     value = data.get(config_key)
                     if   config_type == type(10000):
                         setattr(self, attr_key, value)
