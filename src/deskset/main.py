@@ -1,19 +1,19 @@
 from deskset.core.standard import logging
 
+DEVELOP_ENV = True  # 开发环境
 DEBUG_MODE = False  # 调试模式
 
+if DEVELOP_ENV:
+    logging.info('Running on Development Environment')
 if DEBUG_MODE:
-    logging.info('Running on Debug Mode')
+    logging.info('Open Debug Mode')
 
 
-# 设置前后端端口号
+# 设置服务器端口
 from deskset.core.config import config
 
-sever_port = config.sever_port
-front_port = config.front_port
-
-logging.info(f'Sever Port {sever_port}')
-logging.info(f'Front Port {front_port}')
+server_port = config.server_port
+logging.info(f'Server Port {server_port}')
 
 
 # FastAPI 程序
@@ -25,17 +25,18 @@ app = FastAPI()
 
 
 # CORS 跨域请求
-from fastapi.middleware.cors import CORSMiddleware
+if DEVELOP_ENV:  # 开发时有 Vite Server 需要添加 CORS
+    from fastapi.middleware.cors import CORSMiddleware
 
-origins = ['http://127.0.0.1:' + str(front_port)]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins='http://127.0.0.1:5173',
+        allow_credentials=True,
+        allow_methods=['*'],
+        allow_headers=['*'],
+    )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=['*'],
-    allow_headers=['*'],
-)
+    logging.info(f'Add http://127.0.0.1:5173 to CORS')
 
 
 # 统一错误（异常）处理
@@ -116,4 +117,4 @@ async def hello_world():
 # 启动服务器
 def main():
     import uvicorn
-    uvicorn.run(app, host='127.0.0.1', port=sever_port)
+    uvicorn.run(app, host='127.0.0.1', port=server_port)

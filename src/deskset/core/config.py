@@ -30,8 +30,7 @@ class Config(object):
         self.encoding = self._setting.get('encoding', default='utf-8')
 
         # 端口
-        self.sever_port: int = int(self._setting.get('sever-port', default='8000'))
-        self.front_port: int = int(self._setting.get('front-port', default='5173'))
+        self.server_port: int = int(self._setting.get('server-port', default='8000'))
 
 
 config = Config()
