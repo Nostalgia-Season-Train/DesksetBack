@@ -1,9 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from deskset.router.access import oauth2_scheme
 
 from deskset.presenter.format import format_return
 from deskset.feature.device import device
 
-router_device = APIRouter(prefix='/v0/device', tags=['设备信息'])
+router_device = APIRouter(prefix='/v0/device', tags=['设备信息'], dependencies=[Depends(oauth2_scheme)])
 
 
 # CPU 信息

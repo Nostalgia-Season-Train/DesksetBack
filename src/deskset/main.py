@@ -17,6 +17,8 @@ logging.info(f'Front Port {front_port}')
 
 
 # FastAPI 程序
+# ！！！警告，需要身份验证，不然任意桌面应用程序都能访问本服务器！！！
+# 一个 CSRF 示例：<img src="http://127.0.0.1:8000/v0/device/cpu"></img>，可在其他 Electron 程序中访问本服务器接口
 from fastapi import FastAPI
 
 app = FastAPI()
@@ -58,6 +60,11 @@ def deskset_exception(request: Request, exc: Exception):
         status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
         content=str(exc)
     )
+
+
+# 认证接口
+from deskset.router.access import router_access
+app.include_router(router_access)
 
 
 # 调试接口
