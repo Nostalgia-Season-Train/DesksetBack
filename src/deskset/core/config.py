@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Optional
 
 import json
 
@@ -9,7 +10,7 @@ CONFIG_MAIN_ENCODE = 'utf-8'
 
 
 class Config(object):
-    _instance: Config = None
+    _instance: Optional[Config] = None
 
     def __new__(cls) -> Config:
         if cls._instance is None:
