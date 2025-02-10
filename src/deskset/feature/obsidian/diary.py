@@ -42,7 +42,7 @@ class Diary:
 
     # 选择日记：date 格式 YYYYMMDD
     def choose(self, date: str) -> None:
-        path = self._root.get_abspath(self._diary.get_diary_relpath(date))
+        path = self._root.calc_abspath(self._diary.get_diary_relpath(date))
 
         if Path(path).is_file():
             self._file = TextFile(path)
@@ -55,18 +55,25 @@ class Diary:
             self._obsidian.open_note_by_path(self._file.path())
 
     # 读取日记
-    def read(self) -> Optional[dict]:
+    def read(self) -> dict:
         if self._file is not None:
             meta, content = self._note.metadata_and_content(self._file)
             return {
                 'meta': meta,
                 'content': content
             }
+        else:
+            return {
+                'meta': '',
+                'content': ''
+            }
 
     # 读取日记中的动态
-    def read_activitys(self) -> Optional[list]:
+    def read_activitys(self) -> list:
         if self._file is not None:
             return self._activity.get_activitys(self._file)
+        else:
+            return []
 
 
 # 适用于没有设置好 Obsidian 仓库的情况
@@ -83,8 +90,11 @@ class EmptyDiary():
     def open_in_obsidian(self) -> None:
         pass
 
-    def read(self) -> Optional[dict]:
-        pass
+    def read(self) -> dict:
+        return {
+            'meta': '',
+            'content': ''
+        }
 
-    def read_activitys(self) -> Optional[list]:
-        pass
+    def read_activitys(self) -> list:
+        return []
