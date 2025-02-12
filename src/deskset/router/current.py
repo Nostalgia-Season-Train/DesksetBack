@@ -1,9 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from deskset.router.access import check_token
 
 from deskset.presenter.format import format_return
 from deskset.feature.current import current
 
-router_datetime = APIRouter(prefix='/v0/datetime', tags=['日期时间'])
+router_datetime = APIRouter(prefix='/v0/datetime', tags=['日期时间'], dependencies=[Depends(check_token)])
 
 
 @router_datetime.get('/date')

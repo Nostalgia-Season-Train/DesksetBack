@@ -9,13 +9,14 @@ class ReqStr(BaseModel):  # 确保写入配置文件之后，再去检查
 
 
 # === 路由 ===
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from deskset.router.access import check_token
 
 from deskset.presenter.format import format_return
 
 from deskset.feature.conf_app import conf_app
 
-router_config = APIRouter(prefix='/v0/config', tags=['配置'])
+router_config = APIRouter(prefix='/v0/config', tags=['配置'], dependencies=[Depends(check_token)])
 
 @router_config.get('/app-obsidian-vault')
 def get_vault_path():

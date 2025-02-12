@@ -51,9 +51,10 @@ def import_from_path(module_name: str, file_path: str) -> ModuleType:
 
 
 # 注册插件
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from deskset.router.access import check_token
 
-router_plugin_root = APIRouter(prefix='/api')  # 所有插件路由的根路径
+router_plugin_root = APIRouter(prefix='/api', dependencies=[Depends(check_token)])  # 所有插件路由的根路径
 
 for plugin in get_plugins():
     # 插件名称

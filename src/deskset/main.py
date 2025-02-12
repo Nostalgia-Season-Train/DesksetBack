@@ -87,11 +87,11 @@ app.include_router(router_greet)
 from deskset.router.current import router_datetime
 app.include_router(router_datetime)
 
-from deskset.router.cloud import router_cloud
-app.include_router(router_cloud)
+# from deskset.router.cloud import router_cloud
+# app.include_router(router_cloud)
 
-from deskset.router.quick import router_quick
-app.include_router(router_quick)
+# from deskset.router.quick import router_quick
+# app.include_router(router_quick)
 
 from deskset.router.config import router_config
 app.include_router(router_config)
@@ -100,18 +100,6 @@ app.include_router(router_config)
 # 插件注册：/api 作为所有插件路由的根路径
 from deskset.router.plugin import router_plugin_root
 app.include_router(router_plugin_root)
-
-
-# 一个标准接口，测试前端请求
-from deskset.core.locale import _t
-from deskset.presenter.format import format_return
-
-@app.get('/helloworld')
-async def hello_world():
-    def execute_function():
-        return _t('helloworld')
-
-    return format_return(execute_function())
 
 
 # 启动服务器
