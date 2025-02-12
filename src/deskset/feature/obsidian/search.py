@@ -59,7 +59,7 @@ class Search:
 
 
 class EmptySearch:
-    def __init__(self, vault_path: str, excludes: list[str]) -> None:
+    def __init__(self, vault_path: str, excludes: list[str] = ['.obsidian', '.git']) -> None:
         pass
 
     def search(self, query: str) -> list[str]:
