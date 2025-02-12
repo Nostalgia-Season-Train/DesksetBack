@@ -16,7 +16,7 @@ ERR_CANT_FIND_NOR_CREATE_TRASH = DesksetError(code=2004, message=_t('根路径 {
 # 根路径（根目录）
 # 作用：将一个路径（目录）视作根路径（根目录）进行操作
 class RootPath:
-    def __init__(self, root: str) -> None:
+    def __init__(self, root: str, excludes: list[str] = []) -> None:
         self._encoding = config.encoding
 
         if not os.path.isdir(root):
@@ -24,16 +24,19 @@ class RootPath:
 
         self._root = Path(root)
         self._folders: list[Path] = []
-        self._files:   list[Path] = []
+        self._files:   list[dict] = []
+        self._excludes = excludes  # 需要排除的条目
 
         self.update()
 
-    def __get_entrys(self, relpath: Path) -> tuple[list[Path], list[Path]]:
+    def __get_entrys(self, relpath: Path) -> tuple[list, list]:
         folders: list[Path] = []
-        files:   list[Path] = []
+        files:   list[dict] = []
 
         with os.scandir(self._root / relpath) as entrys:
             for entry in entrys:
+                if entry.name in self._excludes:
+                    continue
                 if entry.is_dir():
                     folders.append(relpath / entry.name)
                     # 子条目下的文件夹和文件
@@ -41,7 +44,14 @@ class RootPath:
                     files.extend(files_in_entry)
                     folders.extend(folders_in_entry)
                 else:
-                    files.append(relpath / entry.name)
+                    meta = entry.stat()
+                    files.append({
+                        'relpath': relpath / entry.name,
+                        'name': entry.name,
+                        'size': meta.st_size,
+                        'ctime': meta.st_ctime,
+                        'mtime': meta.st_mtime
+                    })
 
         return folders, files
 
@@ -54,8 +64,11 @@ class RootPath:
     def get_folders(self) -> list[str]:
         return list(map(str, self._folders))
 
-    def get_files(self) -> list[str]:
-        return list(map(str, self._files))
+    def get_files(self) -> list[dict]:
+        return self._files
+
+    def get_files_relpath(self) -> list[str]:
+        return [str(file['relpath']) for file in self._files]
 
     def get_abspath(self, relpath: str) -> str:
         if Path(relpath) not in self._files:
@@ -66,26 +79,4 @@ class RootPath:
     def calc_abspath(self, relpath: str) -> str:
         return str(self._root / relpath)
 
-    def create_file(self, relpath: str) -> None:
-        relpath = self._root / relpath
-        if relpath in self._files:
-            raise ERR_FILE_ALREADY_EXIST.insert(self._root, relpath)
-
-        try:
-            with open(relpath, 'x', encoding=self._encoding):
-                return
-        except FileExistsError:
-            raise ERR_NEED_UPDATE.insert(self._root)
-
-    def delete_file(self, relpath: str) -> None:
-        relpath = self._root / relpath
-        if relpath not in self._files:
-            raise ERR_FILE_NOT_EXIST.insert(self._root, relpath)
-
-        try:
-            send2trash(relpath)
-        except FileNotFoundError:
-            raise ERR_NEED_UPDATE.insert(self._root)
-        # TrashPermissionError：根目录没有回收站，同时 send2trash 也不能创建回收站
-        except TrashPermissionError:
-            raise ERR_CANT_FIND_NOR_CREATE_TRASH.insert(self._root)
+    # 去掉创建和删除文件，以后用 SQLite 管理根目录

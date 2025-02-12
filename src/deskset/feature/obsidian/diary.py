@@ -36,7 +36,7 @@ class Diary:
 
     # 列出一个月中的日记：date 格式 YYYYMM
     def list_a_month(self, date: str) -> list:
-        return self._diary.get_diarys_in_a_month(self._root.get_files(), date)
+        return self._diary.get_diarys_in_a_month(self._root.get_files_relpath(), date)
 
     # === 读写日记前，先选择日记 ===
 

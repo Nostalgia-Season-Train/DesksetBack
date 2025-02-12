@@ -78,8 +78,8 @@ if DEBUG_MODE:
 from deskset.router.device import router_device
 app.include_router(router_device)
 
-from deskset.router.diary import router_diary
-app.include_router(router_diary)
+from deskset.router.obsidian import router_obsidian
+app.include_router(router_obsidian)
 
 from deskset.router.greet import router_greet
 app.include_router(router_greet)

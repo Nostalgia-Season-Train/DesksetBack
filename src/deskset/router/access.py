@@ -1,21 +1,9 @@
 # access 权限
-from __future__ import annotations
-from typing import Optional
-
 from deskset.core.config import config
 
 class Access(object):
-    _instance: Optional[Access] = None
-
-    def __new__(cls) -> Access:
-        if cls._instance is None:
-            cls._instance = object.__new__(cls)
-        return cls._instance
-
     def __init__(self) -> None:
-        if not hasattr(self._instance, '_is_init'):
-            self._is_init = True
-            self._token: str = self._generate_token(config.username, config.password)
+        self._token: str = self._generate_token(config.username, config.password)
 
     def _generate_token(self, username: str, password: str) -> str:
         from datetime import datetime
