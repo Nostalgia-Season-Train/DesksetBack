@@ -22,13 +22,16 @@ class Search:
         # 缓存
         self._cache: Optional[RootPath] = None
 
-    def search(self, query: str) -> list[str]:
+    # 开始查询 => 查询中 => 结束查询
+      # 开始查询：传入 str  + 读入缓存
+      # 结束查询：传入 None + 清空缓存
+    def search(self, query: Optional[str]) -> list[str]:
         # 查询结束，释放内存 + 保证下次查询刷新
-        if query == '':
+        if query is None:
             self._cache = None
             return []
 
-        if self._cache == None:
+        if self._cache is None:
             self._cache = RootPath(self._vault, self._excludes).get_files()
 
         first = []  # .md 优先

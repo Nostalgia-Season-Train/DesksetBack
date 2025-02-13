@@ -77,7 +77,7 @@ def read_activity():
 
 # 在 Obsidian 中查找笔记
 @router_search.get('/find-note')
-def find_note(query: str = Query()):
+def find_note(query: str = Query(None)):
     return format_return(obsidian.search.search(query))
 
 # 在 Obsidian 中打开笔记
