@@ -33,10 +33,13 @@ class Config(object):
         self.language: str = 'zh-cn'
         self.encoding: str = 'utf-8'
         # 端口
-        self.server_port: int = 8000
-        # 用户和密码
-        self.username: str = 'deskset-username'
-        self.password: str = 'deskset-password'
+        self.server_port: int = 6527
+        # 用户和密码：self.username 和 self.password 每次都随机生成，读取配置文件成功再被覆盖
+        import random
+        import string
+        letters_and_digits = string.ascii_letters + string.digits
+        self.username: str = 'deskset-user' + ''.join(random.choices(letters_and_digits, k=random.randint(5, 10)))
+        self.password: str = 'deskset-pswd' + ''.join(random.choices(letters_and_digits, k=random.randint(10, 20)))
 
         # === 读取 ===
         try:
