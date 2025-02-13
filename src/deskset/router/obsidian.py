@@ -11,6 +11,7 @@ class Obsidian(ConfAppObserver):
         self.refresh(conf_app.obsidian_vault)
 
     def update(self, conf_app: ConfApp) -> None:
+        # 仅当 仓库路径 实际变化，才会重新创建实例，避免数据意外刷新
         if self.vault != conf_app.obsidian_vault:
             self.refresh(conf_app.obsidian_vault)
 
@@ -25,8 +26,10 @@ class Obsidian(ConfAppObserver):
 
 obsidian = Obsidian(conf_app)
 
-diary = obsidian.diary
-search = obsidian.search
+# 注意：不要用 diary = obsidian.diary！
+  # 因为这样 diary 指向 obsidian._diary 保存的实例，而不是 obsidian._diary 本身
+  # 所以 diary 不会随 obsidian._diary 变化而变化
+  # 哪怕设置更新成功，访问 diary 还是指向上个仓库中的日记
 
 
 # === 路由 ===
@@ -47,27 +50,27 @@ router_search = APIRouter(prefix='/search')
 # 列出一个月中的日记
 @router_diary.get('/list-a-month/{date}')
 def list_a_month(date):
-    return format_return(diary.list_a_month(date))
+    return format_return(obsidian.diary.list_a_month(date))
 
 # 打开 -> 选择日记
 @router_diary.get('/open/{date}')
 def open(date):
-    return format_return(diary.choose(date))
+    return format_return(obsidian.diary.choose(date))
 
 # 在 Obsidian 中打开日记
 @router_diary.get('/open-in-obsidian')
 def open_in_obsidian():
-    return format_return(diary.open_in_obsidian())
+    return format_return(obsidian.diary.open_in_obsidian())
 
 # 返回日记全部内容
 @router_diary.get('/content')
 def read():
-    return format_return(diary.read())
+    return format_return(obsidian.diary.read())
 
 # 返回日记中的动态
 @router_diary.get('/activity')
 def read_activity():
-    return format_return(diary.read_activitys())
+    return format_return(obsidian.diary.read_activitys())
 
 
 # 路由：搜索
@@ -75,12 +78,12 @@ def read_activity():
 # 在 Obsidian 中查找笔记
 @router_search.get('/find-note')
 def find_note(query: str = Query()):
-    return format_return(search.search(query))
+    return format_return(obsidian.search.search(query))
 
 # 在 Obsidian 中打开笔记
 @router_search.get('/open-note/{relpath:path}')
 def open_note(relpath: str):
-    return format_return(search.open_in_obsidian(relpath))
+    return format_return(obsidian.search.open_in_obsidian(relpath))
 
 
 # 注册路由
