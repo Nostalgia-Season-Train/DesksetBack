@@ -1,6 +1,13 @@
 # access 权限
 from deskset.core.config import config
 
+DISABLE_ACCESS = False  # 临时禁用认证，方便调试
+
+if DISABLE_ACCESS:
+    from deskset.core.log import logging
+    logging.warning('=== Access is disabled ===')
+
+
 class Access(object):
     def __init__(self) -> None:
         self._token: str = self._generate_token(config.username, config.password)
@@ -32,13 +39,7 @@ class Access(object):
 access = Access()
 
 
-# router 路由
-from fastapi import APIRouter
-
-router_access = APIRouter(prefix='/v0/access', tags=['认证'])
-
-
-# oauth2_scheme 验证 token
+# oauth2_scheme 获取 token => check_token 验证 token
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
@@ -48,6 +49,16 @@ def check_token(token: str = Depends(oauth2_scheme)) -> bool:  # Depends(oauth2_
     if token != access.token:
         raise HTTPException(status_code=400, detail='无效密钥')
     return True
+
+if DISABLE_ACCESS:
+    def check_token() -> None:  # 重新定义 check_token（注：Python 多次定义函数时，只有最后的定义被使用）
+        return
+
+
+# router 路由
+from fastapi import APIRouter
+
+router_access = APIRouter(prefix='/v0/access', tags=['认证'])
 
 @router_access.post('/login')
 def login(form: OAuth2PasswordRequestForm = Depends()):
