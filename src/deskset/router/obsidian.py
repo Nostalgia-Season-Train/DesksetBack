@@ -78,6 +78,8 @@ def read_activity():
 # 在 Obsidian 中查找笔记
 @router_search.get('/find-note')
 def find_note(query: str = Query(None)):
+    if query == '':  # 空字符串视作 None，即结束查询的标志。注：/find-note 传入 None，/find-note?query= 传入 ''
+        query = None
     return format_return(obsidian.search.search(query))
 
 # 在 Obsidian 中打开笔记
