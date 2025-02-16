@@ -1,7 +1,7 @@
 from deskset.core.log import logging
 
-DEVELOP_ENV = True  # 开发环境
-DEBUG_MODE = False  # 调试模式
+DEVELOP_ENV = False  # 开发环境
+DEBUG_MODE  = False  # 调试模式
 
 if DEVELOP_ENV:
     logging.info('Running on Development Environment')
