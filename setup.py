@@ -13,6 +13,8 @@ shutil.rmtree('./dist/DigitalDeskSetup/i18n')
 os.system('pip install -r requirements.txt -t ./dist/DigitalDeskSetup/site-packages')
 
 # 构建程序
+  # 构建失败的解决方案
+  # - Error 1104：避免中文路径
 os.system('nuitka --module src/deskset --include-package=deskset --output-dir=dist/DigitalDeskSetup/site-packages --remove-output')
 
 # 复制 i18n 翻译文件
