@@ -53,3 +53,8 @@ def open_web_through_url(req: RequestWeb):
 def open_folder_by_vscode(req: RequestFolder):
     app_vscode.open_folder_by_vscode(req.path)
     return format_return('成功通过 vscode 打开文件夹：{}'.format(req.path))
+
+@router_quick.get('open-recycle')
+def open_recycle():
+    quick.open_recycle()
+    return format_return('成功打开回收站')

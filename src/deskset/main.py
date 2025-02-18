@@ -90,8 +90,8 @@ app.include_router(router_datetime)
 # from deskset.router.cloud import router_cloud
 # app.include_router(router_cloud)
 
-# from deskset.router.quick import router_quick
-# app.include_router(router_quick)
+from deskset.router.quick import router_quick
+app.include_router(router_quick)
 
 from deskset.router.config import router_config
 app.include_router(router_config)
