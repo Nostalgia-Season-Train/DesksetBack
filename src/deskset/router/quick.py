@@ -49,12 +49,12 @@ def open_web_through_url(req: RequestWeb):
     quick.open_web_by_url(req.url)
     return format_return('成功打开网站：{}'.format(req.url))
 
-@router_quick.post('open-folder-by-vscode')
+@router_quick.post('/open-folder-by-vscode')
 def open_folder_by_vscode(req: RequestFolder):
     app_vscode.open_folder_by_vscode(req.path)
     return format_return('成功通过 vscode 打开文件夹：{}'.format(req.path))
 
-@router_quick.get('open-recycle')
+@router_quick.get('/open-recycle')
 def open_recycle():
     quick.open_recycle()
     return format_return('成功打开回收站')
