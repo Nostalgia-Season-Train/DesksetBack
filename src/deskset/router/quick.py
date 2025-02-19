@@ -30,14 +30,15 @@ class RequestWeb(BaseModel):
 
 
 # === 路由 ===
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from deskset.router.access import check_token
 
 from deskset.presenter.format import format_return
 
 import deskset.feature.quick as quick
 import deskset.feature.app.vscode as app_vscode
 
-router_quick = APIRouter(prefix='/v0/quick', tags=['快速启动'])
+router_quick = APIRouter(prefix='/v0/quick', tags=['快速启动'], dependencies=[Depends(check_token)])
 
 @router_quick.post('/open-app-through-path')
 def open_app_through_path(req: RequestApp):
