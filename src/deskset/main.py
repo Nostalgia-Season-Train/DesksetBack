@@ -1,7 +1,16 @@
-from deskset.core.log import logging
+# 命令行参数
+from argparse import ArgumentParser
 
-DEVELOP_ENV = False  # 开发环境
+parser = ArgumentParser(description='数字桌搭后端命令行参数')
+parser.add_argument('-dev', action='store_true', help='以开发者环境启动')
+args = parser.parse_args()
+
+DEVELOP_ENV = args.dev
 DEBUG_MODE  = False  # 调试模式
+
+
+# 日志
+from deskset.core.log import logging
 
 if DEVELOP_ENV:
     logging.info('Running on Development Environment')
