@@ -19,6 +19,6 @@ def open_web_by_url(webUrl: str):
 # 打开回收站
 def open_recycle():
     if SYSTEM == 'Windows':
-        import os
-        os.system('start shell:RecycleBinFolder')
+        subprocess.Popen('explorer shell:RecycleBinFolder', shell=True)
         # subprocess.Popen('start shell:RecycleBinFolder', shell=True)  # 会使已经打开的回收站消失
+        # os.system('start shell:RecycleBinFolder')  # 打包后运行会弹出 CMD 窗口
