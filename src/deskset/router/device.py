@@ -1,10 +1,25 @@
+# === Device ===
+from deskset.core.standard import DesksetError
+
+from deskset.feature.device import DeviceFactory
+
+device = DeviceFactory.create_device()
+
+def check_init() -> None:
+    if device is None:
+        raise DesksetError(code=2000, message='未知系统，无法读取设备信息')
+
+
+# === 路由 ===
 from fastapi import APIRouter, Depends
 from deskset.router.access import check_token
 
 from deskset.presenter.format import format_return
-from deskset.feature.device import device
 
-router_device = APIRouter(prefix='/v0/device', tags=['设备信息'], dependencies=[Depends(check_token)])
+router_device = APIRouter(
+    prefix='/v0/device', tags=['设备信息'],
+    dependencies=[Depends(check_token), Depends(check_init)]
+)
 
 
 # CPU 信息

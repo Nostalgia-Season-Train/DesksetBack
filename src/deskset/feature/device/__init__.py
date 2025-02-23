@@ -1,7 +1,6 @@
 import platform
 
-from deskset.feature.device.win32  import Win32Device
-from deskset.feature.device.unknow import UnknowDevice
+from deskset.feature.device.win32 import Win32Device
 
 
 class DeviceFactory:
@@ -13,9 +12,6 @@ class DeviceFactory:
             if platform.system() == 'Windows':
                 DeviceFactory._device = Win32Device()
             else:
-                DeviceFactory._device = UnknowDevice()
+                DeviceFactory._device = None
 
         return DeviceFactory._device
-
-
-device = DeviceFactory.create_device()
