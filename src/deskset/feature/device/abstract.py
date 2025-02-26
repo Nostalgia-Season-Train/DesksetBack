@@ -36,6 +36,10 @@ class AbstractDevice(ABC):
         pass
 
     @abstractmethod
+    def _refresh_network(self) -> None:
+        pass
+
+    @abstractmethod
     def battery(self):
         """
         电池：是否充电 bool、剩余电量 %

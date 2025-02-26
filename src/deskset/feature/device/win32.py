@@ -1,5 +1,7 @@
 import platform
 import psutil
+import threading
+import time
 
 from deskset.core.standard import DesksetError
 from deskset.feature.device.abstract import AbstractDevice
@@ -11,10 +13,24 @@ CPU_PERCENT_INTERVAL = 0
 
 
 class Win32Device(AbstractDevice):
-    def __init__(self):
+    def __init__(self, interval: float = 1):
         # 首次执行 psutil.cpu_percent() 结果可能为空（interval=0 时）
         # 所以初始化时提前执行一次，保证外部调用返回值有意义
         self.cpu()
+
+        self.network = { 'sent': 0, 'recv': 0 }  # 单位 bytes/s
+
+        self._interval = interval  # 轮询间隔 单位 s
+        self._lock = threading.Lock()
+        self._loop = threading.Thread(target=self.__loop_refresh)
+        self._loop.daemon = True  # 守护线程，主进程结束时自动退出
+        self._loop.start()
+
+    def __loop_refresh(self) -> None:
+        self.__last_net = psutil.net_io_counters()  # net 是 psutil 的 net，不是 self.network
+        while True:
+            time.sleep(self._interval)
+            self._refresh_network()
 
     def cpu(self):
         """
@@ -70,6 +86,14 @@ class Win32Device(AbstractDevice):
                 partition['free']  = format_data(partition['free'])
 
         return partitions
+
+    def _refresh_network(self) -> None:
+        net = psutil.net_io_counters()
+
+        self.network['sent'] = int((net.bytes_sent - self.__last_net.bytes_sent) / self._interval)
+        self.network['recv'] = int((net.bytes_recv - self.__last_net.bytes_recv) / self._interval)
+
+        self.__last_net = net
 
     def battery(self):
         battery = psutil.sensors_battery()

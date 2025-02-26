@@ -37,6 +37,11 @@ def get_memory():
 def get_disk():
     return format_return(device.disk_partitions())
 
+# 网络信息
+@router_device.get('/network')
+def get_network():
+    return format_return(device.network)
+
 # 电池信息
 @router_device.get('/battery')
 def get_battery():
