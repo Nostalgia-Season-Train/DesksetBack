@@ -9,6 +9,17 @@ DEVELOP_ENV = args.dev
 DEBUG_MODE  = False  # 调试模式
 
 
+# 确保各模块所需目录存在
+from pathlib import Path
+
+Path('./config').mkdir(exist_ok=True)  # 配置 core.config
+Path('./log').mkdir(exist_ok=True)     # 日志 core.log
+
+Path('./i18n').mkdir(exist_ok=True)  # 翻译 core.locale
+
+Path('./api').mkdir(exist_ok=True)  # 插件 router.api
+
+
 # 日志
 from deskset.core.log import logging
 
