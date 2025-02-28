@@ -3,8 +3,8 @@ import shutil, os
 # ==== 预处理 ====
 
 # 清除上次文件
-shutil.rmtree('./dist/DigitalDeskSetup/site-packages')
-shutil.rmtree('./dist/DigitalDeskSetup/i18n')
+shutil.rmtree('./dist/DigitalDeskSetup/site-packages', ignore_errors=True)
+shutil.rmtree('./dist/DigitalDeskSetup/i18n', ignore_errors=True)
 
 
 # ==== 打包 ====
@@ -19,10 +19,3 @@ os.system('nuitka --module src/deskset --include-package=deskset --output-dir=di
 
 # 复制 i18n 翻译文件
 shutil.copytree('./i18n', './dist/DigitalDeskSetup/i18n')
-
-
-# === 前后端预发布目录 ===
-
-# 覆盖上次构建
-shutil.rmtree('../DigitalDeskSetup-Package/Deskset-Back')
-shutil.copytree('./dist/DigitalDeskSetup', '../DigitalDeskSetup-Package/Deskset-Back')
