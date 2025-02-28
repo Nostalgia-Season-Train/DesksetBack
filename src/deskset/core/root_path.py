@@ -71,9 +71,10 @@ class RootPath:
         return [str(file['relpath']) for file in self._files]
 
     def get_abspath(self, relpath: str) -> str:
-        if Path(relpath) not in self._files:
-            raise ERR_FILE_NOT_EXIST.insert(self._root, relpath)
-        return str(self._root / relpath)
+        for file in self._files:
+            if Path(relpath) == file['relpath']:
+                return str(self._root / relpath)
+        raise ERR_FILE_NOT_EXIST.insert(self._root, relpath)
 
     # 直接计算绝对路径，不去检查文件是否存在
     def calc_abspath(self, relpath: str) -> str:
