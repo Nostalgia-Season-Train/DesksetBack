@@ -40,6 +40,12 @@ import deskset.feature.app.vscode as app_vscode
 
 router_quick = APIRouter(prefix='/v0/quick', tags=['快速启动'], dependencies=[Depends(check_token)])
 
+@router_quick.get('/open-default/{path:path}')
+def open_default(path: str):
+    if os.path.isfile(path) != True:
+        raise DesksetError(message=f'错误！文件 {path} 不存在！')
+    return format_return(quick.open_default(path))
+
 @router_quick.post('/open-app-through-path')
 def open_app_through_path(req: RequestApp):
     quick.open_app_by_path(req.path)

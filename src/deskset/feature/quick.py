@@ -7,6 +7,15 @@ import platform
 SYSTEM = platform.system()
 
 
+# 默认打开
+def open_default(path: str) -> None:
+    if SYSTEM == 'Windows':
+        if Path(path).suffix == '.exe':  # 程序用 open_app_by_path 打开
+            open_app_by_path(path)
+        else:                            # 其他文件用 默认应用 打开
+            import os
+            os.startfile(path)
+
 def open_app_by_path(appPath: str):
     # 1、需要设置应用工作路径 cwd = 应用所在目录，否则某些应用无法运行
     # 2、如果应用随程序结束而关闭，这是 vsc 的原因，用命令行运行 .py 即可
