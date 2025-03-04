@@ -51,6 +51,12 @@ def check_token(token: str = Depends(oauth2_scheme)) -> bool:  # Depends(oauth2_
     return True
 
 if DISABLE_ACCESS:
+    import sys
+    args = sys.argv
+    if '-dev' not in args:  # 只有开发环境，才能禁用认证，否则直接退出（DISABLE_ACCESS = True 被意外打包）
+        from deskset.core.log import logging
+        logging.critical('DISABLE_ACCESS is True on Product Environment')
+        raise RuntimeError('DISABLE_ACCESS is True on Product Environment')
     def check_token() -> None:  # 重新定义 check_token（注：Python 多次定义函数时，只有最后的定义被使用）
         return
 

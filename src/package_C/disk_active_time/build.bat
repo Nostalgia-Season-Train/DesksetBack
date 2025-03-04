@@ -1,7 +1,5 @@
 gcc -fPIC -shared "./main.c" -o "../../../lib/disk_active_time.dll" -lpdh
 
-pause
-
 
 @REM === Test C Code ===
 
