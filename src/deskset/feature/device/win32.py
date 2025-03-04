@@ -105,11 +105,16 @@ class Win32Device(AbstractDevice):
 
         return partitions
 
-    def _refresh_network(self) -> None:
+    def _refresh_network(self, is_format=True) -> None:
         net = psutil.net_io_counters()
 
         self.network['sent'] = int((net.bytes_sent - self.__last_net.bytes_sent) / self._interval)
         self.network['recv'] = int((net.bytes_recv - self.__last_net.bytes_recv) / self._interval)
+
+        if is_format:  # 格式化 Kbps
+            # 注：Kbps 的 Kb(1000 bit) != KB(1024 Bytes)
+            self.network['sent'] = int(self.network['sent'] / 125)
+            self.network['recv'] = int(self.network['recv'] / 125)
 
         self.__last_net = net
 
