@@ -37,6 +37,11 @@ def get_memory():
 def get_disk():
     return format_return(device.disk_partitions())
 
+# 硬盘占用率（活动时间）
+@router_device.get('/disk-useage')
+def get_disk_useage():
+    return format_return(device.disk_useage())
+
 # 网络信息
 @router_device.get('/network')
 def get_network():

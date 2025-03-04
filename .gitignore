@@ -2,9 +2,12 @@
 tmp/
 /config/
 
+# 忽略二进制文件
+*.dll
+*.exe
+
 # 忽略 SDK
 sdk/
-*.dll
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

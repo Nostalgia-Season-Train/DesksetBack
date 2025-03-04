@@ -12,6 +12,13 @@ ERR_GET_BATTERY_INFO = DesksetError(code=2001, message='无法获取电池信息
 CPU_PERCENT_INTERVAL = 0
 
 
+# 动态库
+import ctypes
+dll_disk_active_time = ctypes.windll.LoadLibrary('./lib/disk_active_time.dll')
+dll_disk_active_time.start()
+dll_disk_active_time.get.restype = ctypes.c_double
+
+
 class Win32Device(AbstractDevice):
     def __init__(self, interval: float = 1):
         # 首次执行 psutil.cpu_percent() 结果可能为空（interval=0 时）
@@ -49,6 +56,10 @@ class Win32Device(AbstractDevice):
             "use":     memory.used,
             "percent": memory.percent
         }
+
+    def disk_useage(self):
+        # 硬盘占用率 = 硬盘活动时间 = 1s 内读写所用时间 / 1s
+        return f'{float(dll_disk_active_time.get()):.2f}'
 
     def disk_partitions(self, is_format=True):
         """
