@@ -66,7 +66,7 @@ class Win32Device(AbstractDevice):
 
     def disk_useage(self):
         # 硬盘占用率 = 硬盘活动时间 = 1s 内读写所用时间 / 1s
-        return f'{float(dll_disk_active_time.get()):.2f}'
+        return round(dll_disk_active_time.get(), 1)
 
     def disk_partitions(self, is_format=True):
         """
