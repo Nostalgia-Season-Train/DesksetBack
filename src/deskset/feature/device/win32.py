@@ -48,8 +48,15 @@ class Win32Device(AbstractDevice):
             "percent": psutil.cpu_percent(interval=CPU_PERCENT_INTERVAL)
         }
 
-    def memory(self):
+    def memory(self, is_format=True):
         memory = psutil.virtual_memory()
+
+        if is_format:  # 格式化返回 GB
+            return {
+                "total": f'{((memory.total >> 20) / 1024):.1f}',
+                "use":   f'{((memory.used  >> 20) / 1024):.1f}',
+                "percent": memory.percent
+            }
 
         return {
             "total":   memory.total,
