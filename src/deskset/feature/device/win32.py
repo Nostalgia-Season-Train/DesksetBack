@@ -20,7 +20,7 @@ dll_disk_active_time.get.restype = ctypes.c_double
 
 
 class Win32Device(AbstractDevice):
-    def __init__(self, interval: float = 1):
+    def __init__(self, interval: float = 0.5):
         # 首次执行 psutil.cpu_percent() 结果可能为空（interval=0 时）
         # 所以初始化时提前执行一次，保证外部调用返回值有意义
         self.cpu()
