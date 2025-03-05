@@ -40,3 +40,7 @@ copy('lib')
 # 复制 翻译文件、示例插件
 copy('i18n')
 copy('api')
+
+
+# ==== 压缩 ====
+shutil.make_archive('./dist/Deskset-Back', 'zip', f'./{DIST}')  # 压缩包主名，压缩格式，压缩路径
