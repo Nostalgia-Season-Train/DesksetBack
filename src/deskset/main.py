@@ -116,6 +116,9 @@ app.include_router(router_quick)
 from deskset.router.config import router_config
 app.include_router(router_config)
 
+from deskset.router.weather import router_weather
+app.include_router(router_weather)
+
 
 # 插件注册：/api 作为所有插件路由的根路径
 from deskset.router.plugin import router_plugin_root
