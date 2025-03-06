@@ -59,14 +59,3 @@ class Search:
         path = Path(self._vault) / relpath
         if path.is_file():
             self._obsidian.open_note_by_path(str(path))
-
-
-class EmptySearch:
-    def __init__(self, vault_path: str, excludes: list[str] = ['.obsidian', '.git']) -> None:
-        pass
-
-    def search(self, query: str) -> list[str]:
-        return []
-
-    def open_in_obsidian(self, relpath: str) -> None:
-        pass

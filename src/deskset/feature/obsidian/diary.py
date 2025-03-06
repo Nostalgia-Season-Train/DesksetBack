@@ -74,27 +74,3 @@ class Diary:
             return self._activity.get_activitys(self._file)
         else:
             return []
-
-
-# 适用于没有设置好 Obsidian 仓库的情况
-class EmptyDiary():
-    def __init__(self, vault_path: str) -> None:
-        pass
-
-    def list_a_month(self, date: str) -> list:
-        return []
-
-    def choose(self, date: str) -> None:
-        pass
-
-    def open_in_obsidian(self) -> None:
-        pass
-
-    def read(self) -> dict:
-        return {
-            'meta': '',
-            'content': ''
-        }
-
-    def read_activitys(self) -> list:
-        return []
