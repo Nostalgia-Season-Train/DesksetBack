@@ -4,6 +4,9 @@ from deskset.core.standard import DesksetError
 from deskset.feature.obsidian.diary import Diary
 from deskset.feature.obsidian.search import Search
 from deskset.feature.obsidian.recent import Recent
+
+from deskset.feature.obsidian.obsidian import ObsidianManager
+
 from deskset.feature.conf_app import ConfApp, ConfAppObserver, conf_app
 
 class Obsidian(ConfAppObserver):
@@ -19,9 +22,13 @@ class Obsidian(ConfAppObserver):
     def refresh(self, vault_path: str) -> None:
         try:
             self.vault = vault_path
+
             self.diary = Diary(vault_path)
             self.search = Search(vault_path)
             self.recent = Recent(vault_path)
+
+            self.manager = ObsidianManager(vault_path)
+
             self.is_init = True
         except DesksetError as error:
             self.is_init = False
@@ -55,6 +62,8 @@ router_obsidian = APIRouter(
 router_diary = APIRouter(prefix='/diary')
 router_search = APIRouter(prefix='/search')
 router_recent = APIRouter(prefix='/recent')
+
+router_manager = APIRouter(prefix='/manager')
 
 
 # 路由：日记
@@ -108,7 +117,17 @@ def recent_open():
     return format_return(obsidian.recent.recent_open())
 
 
+# 路由：管理
+
+# 在 Obsidian 中打开笔记
+@router_manager.get('/open-note/{relpath:path}')
+def open_note(relpath: str):
+    return format_return(obsidian.manager.open_note_by_relpath(relpath))
+
+
 # 注册路由
 router_obsidian.include_router(router_diary)
 router_obsidian.include_router(router_search)
 router_obsidian.include_router(router_recent)
+
+router_obsidian.include_router(router_manager)
