@@ -20,11 +20,16 @@ class Obsidian(ConfAppObserver):
             self.vault = vault_path
             self.diary = Diary(vault_path)
             self.search = Search(vault_path)
-        except DesksetError:  # - [ ] 改成 Depend 依赖项
-            self.diary = EmptyDiary(vault_path)
-            self.search = EmptySearch(vault_path)
+            self.is_init = True
+        except DesksetError as error:
+            self.is_init = False
+            self.error = error
 
 obsidian = Obsidian(conf_app)
+
+def check_init() -> None:
+    if obsidian.is_init is False:
+        raise obsidian.error
 
 # 注意：不要用 diary = obsidian.diary！
   # 因为这样 diary 指向 obsidian._diary 保存的实例，而不是 obsidian._diary 本身
@@ -40,7 +45,11 @@ from deskset.router.access import check_token
 
 
 # 创建路由
-router_obsidian = APIRouter(prefix='/v0/obsidian', tags=['Obsidian'], dependencies=[Depends(check_token)])
+router_obsidian = APIRouter(
+    prefix='/v0/obsidian', tags=['Obsidian'],
+    dependencies=[Depends(check_token), Depends(check_init)]
+)
+
 router_diary = APIRouter(prefix='/diary')
 router_search = APIRouter(prefix='/search')
 
