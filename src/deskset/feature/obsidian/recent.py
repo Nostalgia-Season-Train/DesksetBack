@@ -20,7 +20,8 @@ class Recent:
             with open(workspace, 'r', encoding=self._encode) as file:
                 import json
                 data: dict = json.load(file)
-                return data.get('lastOpenFiles', [])
+                recent_open_list = [{ 'name': Path(relpath).stem, 'relpath': relpath } for relpath in data.get('lastOpenFiles', [])]
+                return recent_open_list
         else:
             return []
 
