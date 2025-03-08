@@ -50,13 +50,13 @@ if DEVELOP_ENV:  # 开发时有 Vite Server 需要添加 CORS
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins='http://127.0.0.1:5173',
+        allow_origins='http://localhost:1420',
         allow_credentials=True,
         allow_methods=['*'],
         allow_headers=['*'],
     )
 
-    logging.info(f'Add http://127.0.0.1:5173 to CORS')
+    logging.info(f'Add http://localhost:1420 to CORS')
 
 
 # 统一错误（异常）处理
