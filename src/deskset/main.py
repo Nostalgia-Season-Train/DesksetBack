@@ -58,9 +58,10 @@ if DEVELOP_ENV:  # 开发时有 Vite Server 需要添加 CORS
 
     logging.info(f'Add http://localhost:1420 to CORS')
 
-if True:  # Tauri 构建后用 http://tauri.localhost 通信...
+if not DEVELOP_ENV:  # Tauri 构建后用 http://tauri.localhost 通信...
     from fastapi.middleware.cors import CORSMiddleware
 
+    # 会覆盖上面的 CORS，不要一起用
     app.add_middleware(
         CORSMiddleware,
         allow_origins='http://tauri.localhost',
