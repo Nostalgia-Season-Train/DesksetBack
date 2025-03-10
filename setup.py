@@ -1,6 +1,6 @@
 import shutil, os
 
-DIST = 'dist/Deskset-Back'  # 构建产物的存放路径
+DIST = 'dist/DesksetBack'  # 构建产物的存放路径
 
 def clear(folder):
     shutil.rmtree(f'./{DIST}/{folder}', ignore_errors=True)
@@ -9,6 +9,9 @@ def copy(folder):
 
 
 # ==== 预处理 ====
+
+# 创建输出目录
+os.makedirs(f'./{DIST}', exist_ok=True)
 
 # 清除上次构建和测试产生的文件及文件夹
 clear('site-packages')
@@ -43,4 +46,4 @@ copy('api')
 
 
 # ==== 压缩 ====
-shutil.make_archive('./dist/Deskset-Back', 'zip', f'./{DIST}')  # 压缩包主名，压缩格式，压缩路径
+shutil.make_archive('./dist/DesksetBack', 'zip', f'./{DIST}')  # 压缩包主名，压缩格式，压缩路径
