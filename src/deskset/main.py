@@ -145,7 +145,5 @@ import uvicorn
 def main():
     uvicorn.run(app, host='127.0.0.1', port=server_port)
 
-if DEVELOP_ENV:  # 开发环境启用热重载
-    def main():
-        logging.info('Uvicorn Enable Hot Reload')
-        uvicorn.run('src.deskset.main:app', host='127.0.0.1', port=server_port, reload=True)
+# uvicorn.run(reload=True) 影响 vscode git 检查
+  # 临时：热重载用 uvicorn src.deskset.main:app --host 127.0.0.1 --port 6527 --reload
