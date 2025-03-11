@@ -140,6 +140,12 @@ app.include_router(router_plugin_root)
 
 
 # 启动服务器
+import uvicorn
+
 def main():
-    import uvicorn
     uvicorn.run(app, host='127.0.0.1', port=server_port)
+
+if DEVELOP_ENV:  # 开发环境启用热重载
+    def main():
+        logging.info('Uvicorn Enable Hot Reload')
+        uvicorn.run('src.deskset.main:app', host='127.0.0.1', port=server_port, reload=True)
