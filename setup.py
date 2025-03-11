@@ -22,6 +22,10 @@ os.makedirs(f'./{DIST}', exist_ok=True)
 with zipfile.ZipFile(f'./{RUNON}', 'r') as file:
     file.extractall(f'./{DIST}')
 
+# 替换入口文件
+os.remove(f'./{DIST}/DesksetBack.py')
+shutil.copyfile(src=f'./main-prod.py', dst=f'./{DIST}/DesksetBack.py')
+
 
 # ==== 打包 ====
 

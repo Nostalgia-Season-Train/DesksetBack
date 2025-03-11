@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 
 parser = ArgumentParser(description='数字桌搭后端命令行参数')
 parser.add_argument('-dev', action='store_true', help='以开发者环境启动')
-args = parser.parse_args()
+args, _ = parser.parse_known_args()  # 忽略 uvicorn 热重载传入的参数
 
 DEVELOP_ENV = args.dev
 DEBUG_MODE  = False  # 调试模式
