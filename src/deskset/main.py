@@ -145,5 +145,4 @@ import uvicorn
 def main():
     uvicorn.run(app, host='127.0.0.1', port=server_port)
 
-# uvicorn.run(reload=True) 影响 vscode git 检查
-  # 临时：热重载用 uvicorn src.deskset.main:app --host 127.0.0.1 --port 6527 --reload
+# 在这个文件启用 uvicorn.run(reload=True) 会影响 vscode git 检查
