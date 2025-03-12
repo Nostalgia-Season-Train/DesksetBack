@@ -56,3 +56,23 @@ def get_battery():
 @router_device.get('/system')
 def get_system():
     return format_return(device.system())
+
+# SSE 返回消息
+from asyncio import sleep, CancelledError
+from asyncer import asyncify
+from sse_starlette.sse import EventSourceResponse
+
+@router_device.get('/stream')
+async def stream():
+    async def get_device_info():
+        try:
+          while True:
+                info = await asyncify(device.battery)()
+                yield { 'data': info }  # 必需是 dict(data)
+                await sleep(1)
+        except CancelledError as cancel:
+            pass
+        finally:
+            print('router_device/stream end sse')  # - [ ] 改成打印日志
+
+    return EventSourceResponse(get_device_info())
