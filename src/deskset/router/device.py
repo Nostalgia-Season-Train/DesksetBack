@@ -60,6 +60,7 @@ def get_system():
 # SSE 返回消息
 from asyncio import sleep, CancelledError
 from asyncer import asyncify
+from json import dumps
 from sse_starlette.sse import EventSourceResponse
 
 @router_device.get('/stream')
@@ -68,7 +69,10 @@ async def stream():
         try:
           while True:
                 info = await asyncify(device.battery)()
-                yield { 'data': info }  # 必需是 dict(data)
+                # 1、yield dict(data=ret) 而不是 yield ret（ret 代表返回值）
+                # 2、sse 只能发送文本，字典后端序列化 json.dumps(dict) 前端反序列化 JSON.parse(str)
+                  # 注：{ 'key': value } 不是 JSON 格式，key 没有带双引号
+                yield { 'data': dumps(info) }
                 await sleep(1)
         except CancelledError as cancel:
             pass
