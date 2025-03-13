@@ -1,4 +1,4 @@
-import subprocess
+import subprocess, os
 import webbrowser
 from pathlib import Path
 
@@ -13,7 +13,6 @@ def open_default(path: str) -> None:
         if Path(path).suffix == '.exe':  # 程序用 open_app_by_path 打开
             open_app_by_path(path)
         else:                            # 其他文件用 默认应用 打开
-            import os
             os.startfile(path)
 
 def open_app_by_path(appPath: str):
@@ -28,6 +27,6 @@ def open_web_by_url(webUrl: str):
 # 打开回收站
 def open_recycle():
     if SYSTEM == 'Windows':
-        subprocess.Popen('explorer shell:RecycleBinFolder', shell=True)
+        # subprocess.Popen('explorer shell:RecycleBinFolder', shell=True)  # 回收站在 Tauri 置底窗口下打开...
         # subprocess.Popen('start shell:RecycleBinFolder', shell=True)  # 会使已经打开的回收站消失
-        # os.system('start shell:RecycleBinFolder')  # 打包后运行会弹出 CMD 窗口
+        os.system('start shell:RecycleBinFolder')  # 打包后运行会弹出 CMD 窗口
