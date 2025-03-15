@@ -13,7 +13,7 @@ def open_default(path: str) -> None:
         if Path(path).suffix == '.exe':  # 程序用 open_app_by_path 打开
             open_app_by_path(path)
         else:                            # 其他文件用 默认应用 打开
-            os.startfile(path)
+            os.startfile(path)  # 也能打开文件夹
 
 def open_app_by_path(appPath: str):
     # 1、需要设置应用工作路径 cwd = 应用所在目录，否则某些应用无法运行

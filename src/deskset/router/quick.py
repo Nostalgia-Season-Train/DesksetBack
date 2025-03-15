@@ -42,8 +42,8 @@ router_quick = APIRouter(prefix='/v0/quick', tags=['快速启动'], dependencies
 
 @router_quick.get('/open-default/{path:path}')
 def open_default(path: str):
-    if os.path.isfile(path) != True:
-        raise DesksetError(message=f'错误！文件 {path} 不存在！')
+    if os.path.isfile(path) != True and os.path.isdir(path) != True:
+        raise DesksetError(message=f'错误！路径 {path} 不存在！')
     return format_return(quick.open_default(path))
 
 @router_quick.post('/open-app-through-path')
