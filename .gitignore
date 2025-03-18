@@ -1,6 +1,7 @@
-# 忽略临时文件、配置文件
-tmp/
-/config/
+# 临时文件、配置、脚本
+/tmp
+/config
+/script
 
 # 忽略二进制文件
 *.dll

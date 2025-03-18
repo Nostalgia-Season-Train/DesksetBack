@@ -28,6 +28,17 @@ class RequestApp(BaseModel):
 class RequestWeb(BaseModel):
     url: str
 
+class RequestScript(BaseModel):
+    relpath: str  # 相对 DesksetBack.exe
+
+    @field_validator('relpath')
+    @classmethod
+    def check_script(cls, v: str) -> str:
+        abspath = os.path.join(os.getcwd(), 'script', f'{v}.py')
+        if os.path.isfile(abspath) != True:
+            raise DesksetError(message=f'错误！{abspath} 脚本不存在！')
+        return v
+
 
 # === 路由 ===
 from fastapi import APIRouter, Depends
@@ -65,3 +76,8 @@ def open_folder_by_vscode(req: RequestFolder):
 def open_recycle():
     quick.open_recycle()
     return format_return('成功打开回收站')
+
+@router_quick.post('/execute-script')
+def execute_script(req: RequestScript):
+    quick.execute_script(req.relpath)
+    return format_return('成功执行脚本')  # 后面加上返回值

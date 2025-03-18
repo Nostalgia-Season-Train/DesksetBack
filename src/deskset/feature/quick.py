@@ -1,4 +1,4 @@
-import subprocess, os
+import subprocess, os, sys
 import webbrowser
 from pathlib import Path
 
@@ -30,3 +30,8 @@ def open_recycle():
         # subprocess.Popen('explorer shell:RecycleBinFolder', shell=True)  # 回收站在 Tauri 置底窗口下打开...
         # subprocess.Popen('start shell:RecycleBinFolder', shell=True)  # 会使已经打开的回收站消失
         os.system('start shell:RecycleBinFolder')  # 打包后运行会弹出 CMD 窗口
+
+# 执行 Python 脚本
+def execute_script(name: str):
+    current_python = sys.executable  # 当前 Python 解释器路径
+    subprocess.Popen([current_python, f'./script/{name}.py'])  # - [ ] 需要错误检查
