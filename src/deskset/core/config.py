@@ -92,25 +92,25 @@ if __name__ == '__main__':
 
 # ==== 配置读写函数 ====
   # 根据实例成员，读写配置
-  # _conf_relpath 以 config 作根目录，读写 config/{_conf_relpath}.yaml 文件，编码一律 utf-8
-  # _item_key = value 对应 key: value 配置项
-    # _item_custom_prop 下划线将被连字符替换 custom-prop
+  # _confpath 以 config 作根目录，读写 config/{_confpath}.yaml 文件，编码一律 utf-8
+  # _confitem_key = value 对应 key: value 配置项
+    # _confitem_custom_prop 下划线将被连字符替换 custom-prop
 from pathlib import Path
 
 import yaml
 
 def write_conf_file(instance: object):
-    if getattr(instance, '_conf_relpath', None) is None:
-        raise ValueError(f'_conf_relpath not exist in {type(instance)} class')
-    relpath = Path('./config') / f'{instance._conf_relpath}.yaml'
+    if getattr(instance, '_confpath', None) is None:
+        raise ValueError(f'_confpath not exist in {type(instance)} class')
+    relpath = Path('./config') / f'{instance._confpath}.yaml'
 
     items = {}  # 配置项
 
     for attr_key, attr_value in list(instance.__dict__.items()):
-        if not attr_key.startswith('_item_'):
+        if not attr_key.startswith('_confitem_'):
             continue
 
-        key = attr_key[6:].replace('_', '-')  # [6:] 去掉 _item_
+        key = attr_key[6:].replace('_', '-')  # [6:] 去掉 _confitem_
         value = attr_value
         items[key] = value  # Python 3.7+ 开始字典有序
 
@@ -118,9 +118,9 @@ def write_conf_file(instance: object):
         yaml.dump(items, file, allow_unicode=True)
 
 def read_conf_file(instance: object):
-    if getattr(instance, '_conf_relpath', None) is None:
-        raise ValueError(f'_conf_relpath not exist in {type(instance)} class')
-    relpath = Path('./config') / f'{instance._conf_relpath}.yaml'
+    if getattr(instance, '_confpath', None) is None:
+        raise ValueError(f'_confpath not exist in {type(instance)} class')
+    relpath = Path('./config') / f'{instance._confpath}.yaml'
 
     # 读取文件，异常由调用方处理
       # 可能异常：文件不存在 FileNotFoundError、yaml 解析失败 yaml.YAMLError、yaml 解析非字典 TypeError
@@ -133,7 +133,7 @@ def read_conf_file(instance: object):
 
         # attr_value 作为配置项默认值
         for attr_key, attr_value in list(instance.__dict__.items()):
-            if not attr_key.startswith('_item_'):
+            if not attr_key.startswith('_confitem_'):
                 continue
 
             value_type = type(attr_value)
