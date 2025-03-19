@@ -110,7 +110,7 @@ def write_conf_file(instance: object):
         if not attr_key.startswith('_confitem_'):
             continue
 
-        key = attr_key[6:].replace('_', '-')  # [6:] 去掉 _confitem_
+        key = attr_key[len('_confitem_'):].replace('_', '-')  # [len('_confitem_'):] 去掉 _confitem_
         value = attr_value
         items[key] = value  # Python 3.7+ 开始字典有序
 
@@ -137,7 +137,7 @@ def read_conf_file(instance: object):
                 continue
 
             value_type = type(attr_value)
-            key = attr_key[6:].replace('_', '-')
+            key = attr_key[len('_confitem_'):].replace('_', '-')
             value = items.get(key, None)
 
             if type(value) != value_type:  # 值类型 != 配置项默认值类型
