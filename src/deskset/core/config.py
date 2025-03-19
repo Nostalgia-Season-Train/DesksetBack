@@ -9,6 +9,8 @@ CONFIG_MAIN_PATH = './config/deskset.json'
 CONFIG_MAIN_ENCODE = 'utf-8'
 
 
+# ==== 读取 config/deskset.json 中的配置 ====
+  # - [ ] 需要换名 + 移至其他文件
 class Config(object):
     _instance: Optional[Config] = None
 
@@ -86,3 +88,31 @@ config = Config()
 if __name__ == '__main__':
     for attr_key, attr_value in config.__dict__.items():
         print(attr_key, attr_value)
+
+
+# ==== 配置读写函数 ====
+  # 根据实例成员，读写配置
+  # _conf_relpath 以 config 作根目录，读写 config/{_conf_relpath}.yaml 文件，编码一律 utf-8
+  # _item_key = value 对应 key: value 配置项
+    # _item_custom_prop 下划线将被连字符替换 custom-prop
+from pathlib import Path
+
+import yaml
+
+def write_conf_file(instance: object):
+    if getattr(instance, '_conf_relpath', None) is None:
+        raise ValueError(f'_conf_relpath not exist in {type(instance)} class')
+    relpath = Path('./config') / f'{instance._conf_relpath}.yaml'
+
+    items = {}  # 配置项
+
+    for attr_key, attr_value in list(instance.__dict__.items()):
+        if not attr_key.startswith('_item_'):
+            continue
+
+        key = attr_key[6:].replace('_', '-')  # [6:] 去掉 _item_
+        value = attr_value
+        items[key] = value  # Python 3.7+ 开始字典有序
+
+    with open(relpath, 'w', encoding='utf-8') as file:
+        yaml.dump(items, file, allow_unicode=True)
