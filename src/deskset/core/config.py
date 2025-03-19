@@ -59,7 +59,7 @@ class Config(object):
                     if type(data.get(config_key)) != config_type:
                         continue
 
-                    # 修改属性。注：setattr 可能丢掉类型检查
+                    # 修改属性。注：setattr 不会丢掉类型检查
                     value = data.get(config_key)
                     if   config_type == type(10000):
                         setattr(self, attr_key, value)
@@ -116,3 +116,34 @@ def write_conf_file(instance: object):
 
     with open(relpath, 'w', encoding='utf-8') as file:
         yaml.dump(items, file, allow_unicode=True)
+
+def read_conf_file(instance: object):
+    if getattr(instance, '_conf_relpath', None) is None:
+        raise ValueError(f'_conf_relpath not exist in {type(instance)} class')
+    relpath = Path('./config') / f'{instance._conf_relpath}.yaml'
+
+    # 读取文件，异常由调用方处理
+      # 可能异常：文件不存在 FileNotFoundError、yaml 解析失败 yaml.YAMLError、yaml 解析非字典 TypeError
+    with open(relpath, 'r', encoding='utf-8') as file:
+        items: dict = yaml.safe_load(file)
+
+        # 没解析成字典，也算异常
+        if type(items) != type({}):
+            raise TypeError('items from yaml.safe_load(file) not a dict')
+
+        # attr_value 作为配置项默认值
+        for attr_key, attr_value in list(instance.__dict__.items()):
+            if not attr_key.startswith('_item_'):
+                continue
+
+            value_type = type(attr_value)
+            key = attr_key[6:].replace('_', '-')
+            value = items.get(key, None)
+
+            if type(value) != value_type:  # 值类型 != 配置项默认值类型
+                continue
+
+            if   value_type == type(10000):
+                setattr(instance, attr_key, value)
+            elif value_type == type('str') and value != '':
+                setattr(instance, attr_key, value)
