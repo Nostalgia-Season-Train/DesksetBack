@@ -1,3 +1,27 @@
+# ==== 配置 ====
+from typing import Optional
+
+from deskset.core.log import logging
+from deskset.core.standard import DesksetError
+
+from deskset.core.config import write_conf_file, read_conf_file
+
+class ConfProfile:
+    _confitem_name: str
+    _confitem_bio: Optional[str]
+
+    def __init__(self):
+        self._confpath = 'profile/data'
+        self._confitem_name = '数字桌搭'
+        self._confitem_bio = '数字桌搭，桌面美化与笔记应用的完美互动'
+        try:
+            read_conf_file(self)
+        except DesksetError as err:
+            logging.error(err.message)
+        finally:
+            write_conf_file(self)
+
+
 # ==== 响应 ====
 from fastapi import Response
 import orjson
@@ -28,4 +52,8 @@ router_profile = APIRouter(
 
 @router_profile.get('/name')
 def get_user_name():
-    return '数字桌搭'
+    profile = ConfProfile()  # 临时性的，方便测试
+    return {
+        'name': profile._confitem_name,
+        'bio': profile._confitem_bio
+    }

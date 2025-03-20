@@ -103,6 +103,11 @@ from typing import get_type_hints, get_args
 
 import yaml
 
+from deskset.core.standard import DesksetError
+
+READ_CONFFILE_ERROR = DesksetError(message='配置文件 {} 读取失败：{}！')
+
+
 def write_conf_file(instance: object) -> None:
     if getattr(instance, '_confpath', None) is None:
         raise ValueError(f'_confpath not exist in {type(instance)} class')
@@ -121,7 +126,8 @@ def write_conf_file(instance: object) -> None:
     relpath.parent.mkdir(parents=True, exist_ok=True)  # open 不会创建目录，用 Path 提前创建
 
     with open(relpath, 'w', encoding='utf-8') as file:
-        yaml.dump(items, file, allow_unicode=True)
+        yaml.dump(items, file, allow_unicode=True, sort_keys=False)  # sort_keys=False 不排序
+
 
 def read_conf_file(instance: object) -> None:
     if getattr(instance, '_confpath', None) is None:
@@ -130,12 +136,17 @@ def read_conf_file(instance: object) -> None:
 
     # 读取文件，异常由调用方处理
       # 可能异常：文件不存在 FileNotFoundError、yaml 解析失败 yaml.YAMLError、yaml 解析非字典 TypeError
+    if not relpath.is_file():
+        raise READ_CONFFILE_ERROR.insert(relpath, '文件不存在')
     with open(relpath, 'r', encoding='utf-8') as file:
-        items: dict = yaml.safe_load(file)
+        try:
+            items: dict = yaml.safe_load(file)
+        except yaml.YAMLError:
+            raise READ_CONFFILE_ERROR.insert(relpath, 'YAML 解析失败')
 
         # 没解析成字典，也算异常
-        if type(items) != type({}):
-            raise TypeError('items from yaml.safe_load(file) not a dict')
+        if not isinstance(items, dict):
+            raise READ_CONFFILE_ERROR.insert(relpath, '解析结果不是字典')
 
         # attr_value 作为配置项默认值
         for attr_key, attr_value in list(instance.__dict__.items()):
@@ -154,7 +165,7 @@ def read_conf_file(instance: object) -> None:
             elif value_type == type('str'):
                 if value != '':
                     setattr(instance, attr_key, value)
-                if value == '':  # 空字符串：1、明确用 None 替换；2、需要类型标注
+                if value == '':  # 类型标注包含 None = 允许空字符串
                     annotations = get_type_hints(type(instance))
                     if type(None) in get_args(annotations.get(attr_key)):
-                        setattr(instance, attr_key, None)
+                        setattr(instance, attr_key, '')
