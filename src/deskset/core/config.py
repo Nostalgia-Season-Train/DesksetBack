@@ -95,11 +95,15 @@ if __name__ == '__main__':
   # _confpath 以 config 作根目录，读写 config/{_confpath}.yaml 文件，编码一律 utf-8
   # _confitem_key = value 对应 key: value 配置项
     # _confitem_custom_prop 下划线将被连字符替换 custom-prop
+  # 使用提醒：
+    # 成员：self._confXXX（注意 self）
+    # 类型提示：class Conf: _confXXX: str（在类中注解）
 from pathlib import Path
+from typing import get_type_hints, get_args
 
 import yaml
 
-def write_conf_file(instance: object):
+def write_conf_file(instance: object) -> None:
     if getattr(instance, '_confpath', None) is None:
         raise ValueError(f'_confpath not exist in {type(instance)} class')
     relpath = Path('./config') / f'{instance._confpath}.yaml'
@@ -114,10 +118,12 @@ def write_conf_file(instance: object):
         value = attr_value
         items[key] = value  # Python 3.7+ 开始字典有序
 
+    relpath.parent.mkdir(parents=True, exist_ok=True)  # open 不会创建目录，用 Path 提前创建
+
     with open(relpath, 'w', encoding='utf-8') as file:
         yaml.dump(items, file, allow_unicode=True)
 
-def read_conf_file(instance: object):
+def read_conf_file(instance: object) -> None:
     if getattr(instance, '_confpath', None) is None:
         raise ValueError(f'_confpath not exist in {type(instance)} class')
     relpath = Path('./config') / f'{instance._confpath}.yaml'
@@ -145,5 +151,10 @@ def read_conf_file(instance: object):
 
             if   value_type == type(10000):
                 setattr(instance, attr_key, value)
-            elif value_type == type('str') and value != '':
-                setattr(instance, attr_key, value)
+            elif value_type == type('str'):
+                if value != '':
+                    setattr(instance, attr_key, value)
+                if value == '':  # 空字符串：1、明确用 None 替换；2、需要类型标注
+                    annotations = get_type_hints(type(instance))
+                    if type(None) in get_args(annotations.get(attr_key)):
+                        setattr(instance, attr_key, None)
