@@ -32,8 +32,9 @@ if DEBUG_MODE:
 # 设置服务器端口
 from deskset.core.config import config
 
+server_host = config.server_host
 server_port = config.server_port
-logging.info(f'Server Port {server_port}')
+logging.info(f'Server URL is http://{server_host}:{server_port}')
 
 
 # FastAPI 程序
@@ -146,6 +147,6 @@ app.include_router(router_plugin_root)
 import uvicorn
 
 def main():
-    uvicorn.run(app, host='127.0.0.1', port=server_port)
+    uvicorn.run(app, host=server_host, port=server_port)
 
 # 在这个文件启用 uvicorn.run(reload=True) 会影响 vscode git 检查
