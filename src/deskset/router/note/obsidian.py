@@ -1,8 +1,9 @@
 from fastapi import APIRouter
-from httpx import AsyncClient
 
 from deskset.core.config import config
 from deskset.router.stand_response import DesksetJSONResponse
+
+from .noteapi import noteapi
 
 router_obsidian = APIRouter(
     prefix='/v0/obsidian', tags=['Obsidian']
@@ -14,8 +15,14 @@ router_diary = APIRouter(prefix='/diary', default_response_class=DesksetJSONResp
 
 @router_diary.get('/today')
 async def today():
-    async with AsyncClient() as client:
-        return (await client.get(f'http://{config.noteapi_host}:{config.noteapi_port}/diary/read-today')).text
+    diary = (await noteapi.get(f'/diary/read-today')).json()
+    return diary
+
+@router_diary.get('/today-tasks')
+async def today_tasks():
+    diary = (await noteapi.get(f'/diary/read-today')).json()
+    diary_tasks = (await noteapi.post(f'/tasks/get-all-tasks', data={'notepath': diary['notepath']})).json()
+    return diary_tasks
 
 
 # ==== 注册 Obsidian 的子路由 ====
