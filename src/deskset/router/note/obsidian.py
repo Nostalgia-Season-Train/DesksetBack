@@ -7,7 +7,7 @@ from .noteapi import noteapi
 from .validate import DesksetReqDateDay, DesksetReqDateMonth
 
 router_obsidian = APIRouter(
-    prefix='/v0/obsidian', tags=['Obsidian']
+    prefix='/obsidian', tags=['Obsidian']
 )
 
 
