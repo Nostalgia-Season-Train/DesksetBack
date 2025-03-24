@@ -14,6 +14,8 @@ class DesksetReqDateDay(BaseModel):
             return v
         except arrow.parser.ParserError:
             raise DesksetError(message=f'错误！某天 {v} 日期格式有误！应为 YYYYMMDD')
+        except ValueError:
+            raise DesksetError(message=f'错误！某天 {v} 日期无效！')
 
 class DesksetReqDateMonth(BaseModel):
     month: str  # 某月，日期格式：YYYYMM，比如 202503
@@ -26,3 +28,5 @@ class DesksetReqDateMonth(BaseModel):
             return v
         except arrow.parser.ParserError:
             raise DesksetError(message=f'错误！某月 {v} 日期格式有误！应为 YYYYMM')
+        except ValueError:
+            raise DesksetError(message=f'错误！某月 {v} 日期无效！')
