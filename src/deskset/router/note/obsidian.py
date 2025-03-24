@@ -30,6 +30,12 @@ async def read(data: DesksetReqDate = Depends()):
     diary = (await noteapi.get(f'/diary/read/{data.date}')).json()
     return diary
 
+@router_diary.get('/read-tasks/{date}')
+async def read_tasks(data: DesksetReqDate = Depends()):
+    diary = (await noteapi.get(f'/diary/read/{data.date}')).json()
+    diary_tasks = (await noteapi.post(f'/tasks/get-all-tasks', data={'notepath': diary['notepath']})).json()
+    return diary_tasks
+
 
 # ==== 注册 Obsidian 的子路由 ====
 router_obsidian.include_router(router_diary)
