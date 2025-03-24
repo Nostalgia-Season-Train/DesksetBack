@@ -1,9 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from deskset.core.config import config
 from deskset.router.stand_response import DesksetJSONResponse
 
 from .noteapi import noteapi
+from .validate import DesksetReqDate
 
 router_obsidian = APIRouter(
     prefix='/v0/obsidian', tags=['Obsidian']
@@ -23,6 +24,11 @@ async def today_tasks():
     diary = (await noteapi.get(f'/diary/read-today')).json()
     diary_tasks = (await noteapi.post(f'/tasks/get-all-tasks', data={'notepath': diary['notepath']})).json()
     return diary_tasks
+
+@router_diary.get('/read/{date}')
+async def read(data: DesksetReqDate = Depends()):
+    diary = (await noteapi.get(f'/diary/read/{data.date}')).json()
+    return diary
 
 
 # ==== 注册 Obsidian 的子路由 ====
