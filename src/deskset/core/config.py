@@ -172,3 +172,75 @@ def read_conf_file(instance: object) -> None:
                     annotations = get_type_hints(type(instance))
                     if type(None) in get_args(annotations.get(attr_key)):
                         setattr(instance, attr_key, '')
+
+
+# ==== 配置读写函数（绝对路径） ====
+  # 配置路径从绝对路径 _confabspath（包括文件后缀）读取
+def write_conf_file_abspath(instance: object) -> None:
+    if getattr(instance, '_confabspath', None) is None:
+        raise ValueError(f'_confabspath not exist in {type(instance)} class')
+    abspath = Path(instance._confabspath)
+
+    items = {}  # 配置项
+
+    for attr_key, attr_value in list(instance.__dict__.items()):
+        if not attr_key.startswith('_confitem_'):
+            continue
+
+        key = attr_key[len('_confitem_'):].replace('_', '-')  # [len('_confitem_'):] 去掉 _confitem_
+        value = attr_value
+        items[key] = value  # Python 3.7+ 开始字典有序
+
+    abspath.parent.mkdir(parents=True, exist_ok=True)  # open 不会创建目录，用 Path 提前创建
+
+    with open(abspath, 'w', encoding='utf-8') as file:
+        yaml.dump(items, file, allow_unicode=True, sort_keys=False)  # sort_keys=False 不排序
+
+
+def read_conf_file_abspath(instance: object) -> None:
+    if getattr(instance, '_confabspath', None) is None:
+        raise ValueError(f'_confabspath not exist in {type(instance)} class')
+    abspath = Path(instance._confabspath)
+
+    # 读取文件，异常由调用方处理
+      # 可能异常：文件不存在 FileNotFoundError、yaml 解析失败 yaml.YAMLError、yaml 解析非字典 TypeError
+    if not abspath.is_file():
+        raise READ_CONFFILE_ERROR.insert(abspath, '文件不存在')
+    with open(abspath, 'r', encoding='utf-8') as file:
+        try:
+            items: dict = yaml.safe_load(file)
+        except yaml.YAMLError:
+            raise READ_CONFFILE_ERROR.insert(abspath, 'YAML 解析失败')
+
+        # 没解析成字典，也算异常
+        if not isinstance(items, dict):
+            raise READ_CONFFILE_ERROR.insert(abspath, '解析结果不是字典')
+
+        # attr_value 作为配置项默认值
+        for attr_key, attr_value in list(instance.__dict__.items()):
+            if not attr_key.startswith('_confitem_'):
+                continue
+
+            value_type = type(attr_value)
+            key = attr_key[len('_confitem_'):].replace('_', '-')
+            value = items.get(key, None)
+
+            if type(value) != value_type:  # 值类型 != 配置项默认值类型
+                continue
+
+            if   value_type == type(10000):
+                setattr(instance, attr_key, value)
+            elif value_type == type('str'):
+                if value != '':
+                    setattr(instance, attr_key, value)
+                if value == '':  # 类型标注包含 None = 允许空字符串
+                    annotations = get_type_hints(type(instance))
+                    if type(None) in get_args(annotations.get(attr_key)):
+                        setattr(instance, attr_key, '')
+            elif value_type == type([]):  # 附：可以解析 list[dict] 类型
+                if len(value) != 0:
+                    setattr(instance, attr_key, value)
+                if len(value) == 0:  # 同上，包含 None 允许列表为空
+                    annotations = get_type_hints(type(instance))
+                    if type(None) in get_args(annotations.get(attr_key)):
+                        setattr(instance, attr_key, [])
