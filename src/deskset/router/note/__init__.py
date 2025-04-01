@@ -10,5 +10,7 @@ router_note = APIRouter(
 
 # 注册子路由
 from .obsidian import router_obsidian
-
 router_note.include_router(router_obsidian)
+
+from .period_task import router_period_task
+router_note.include_router(router_period_task)

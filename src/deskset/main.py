@@ -49,7 +49,7 @@ from deskset.feature.apscheduler import apscheduler
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logging.info('start lifespan')
-    apscheduler.start()
+    apscheduler.start()  # 不用 paused=True 暂停，uvicorn.run 自然启停
     yield
     logging.info('finish lifespan')
     apscheduler.shutdown()
