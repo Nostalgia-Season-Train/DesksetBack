@@ -1,4 +1,8 @@
-# 命令行参数
+# ==== 类型标注 ====
+from __future__ import annotations
+
+
+# ==== 命令行参数 ====
 from argparse import ArgumentParser
 
 parser = ArgumentParser(description='数字桌搭后端命令行参数')
@@ -9,7 +13,7 @@ DEVELOP_ENV = args.dev
 DEBUG_MODE  = False  # 调试模式
 
 
-# 确保各模块所需目录存在
+# ==== 确保各模块所需目录存在 ====
 from pathlib import Path
 
 Path('./config').mkdir(exist_ok=True)  # 配置 core.config
@@ -20,7 +24,7 @@ Path('./i18n').mkdir(exist_ok=True)  # 翻译 core.locale
 Path('./api').mkdir(exist_ok=True)  # 插件 router.api
 
 
-# 日志
+# ==== 日志 ====
 from deskset.core.log import logging
 
 if DEVELOP_ENV:
@@ -29,7 +33,7 @@ if DEBUG_MODE:
     logging.info('Open Debug Mode')
 
 
-# 设置服务器端口
+# ==== 服务器地址 host 和端口 port ====
 from deskset.core.config import config
 
 server_host = config.server_host
@@ -37,15 +41,29 @@ server_port = config.server_port
 logging.info(f'Server URL is http://{server_host}:{server_port}')
 
 
-# FastAPI 程序
+# ==== Lifespan 生命周期 ====
+from contextlib import asynccontextmanager
+
+from deskset.feature.apscheduler import apscheduler
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logging.info('start lifespan')
+    apscheduler.start()
+    yield
+    logging.info('finish lifespan')
+    apscheduler.shutdown()
+
+
+# ==== FastAPI 应用 ====
 # ！！！警告，需要身份验证，不然任意桌面应用程序都能访问本服务器！！！
 # 一个 CSRF 示例：<img src="http://127.0.0.1:8000/v0/device/cpu"></img>，可在其他 Electron 程序中访问本服务器接口
 from fastapi import FastAPI
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 
-# CORS 跨域请求
+# ==== FastAPI：CORS 跨域请求 ====
 if DEVELOP_ENV:  # 开发时有 Vite Server 需要添加 CORS
     from fastapi.middleware.cors import CORSMiddleware
 
@@ -74,7 +92,7 @@ if not DEVELOP_ENV:  # Tauri 构建后用 http://tauri.localhost 通信...
     logging.info(f'Add http://tauri.localhost to CORS')
 
 
-# 统一错误（异常）处理
+# ==== FastAPI：统一错误（异常）处理 ====
 from fastapi.requests import Request
 from deskset.core.standard import DesksetError
 from fastapi.responses import JSONResponse
@@ -98,18 +116,18 @@ def deskset_exception(request: Request, exc: Exception):
     )
 
 
-# 认证接口
+# ==== FastAPI Router：认证接口 ====
 from deskset.router.access import router_access
 app.include_router(router_access)
 
 
-# 调试接口
+# ==== FastAPI Router：调试接口 ====
 if DEBUG_MODE:
     from deskset.router.debug import router_debug
     app.include_router(router_debug)
 
 
-# 路由注册
+# ==== FastAPI Router：路由注册 ====
 from deskset.router.device import router_device
 app.include_router(router_device)
 
@@ -142,7 +160,7 @@ from deskset.router.profile import router_profile
 app.include_router(router_profile)
 
 
-# 插件注册：/api 作为所有插件路由的根路径
+# ==== FastAPI Router：插件注册：/api 作为所有插件路由的根路径 ====
 from deskset.router.plugin import router_plugin_root
 app.include_router(router_plugin_root)
 
