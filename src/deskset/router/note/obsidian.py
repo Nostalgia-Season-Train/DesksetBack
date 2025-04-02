@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 
 from deskset.core.config import config
-from deskset.router.stand import DesksetReqDateDay, DesksetReqDateMonth
-from deskset.router.stand import DesksetRepJSON
+from deskset.router.unify import DesksetReqDateDay, DesksetReqDateMonth
+from deskset.router.unify import DesksetRepJSON
 
 from .noteapi import noteapi
 

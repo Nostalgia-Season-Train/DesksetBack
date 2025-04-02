@@ -96,7 +96,7 @@ if not DEVELOP_ENV:  # Tauri 构建后用 http://tauri.localhost 通信...
 from fastapi.requests import Request
 from deskset.core.standard import DesksetError
 from fastapi.responses import JSONResponse
-from deskset.router.stand import DesksetErrorRep
+from deskset.router.unify import DesksetErrorRep
 from http import HTTPStatus
 
 @app.exception_handler(DesksetError)

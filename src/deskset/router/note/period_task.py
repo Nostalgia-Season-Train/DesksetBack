@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from deskset.feature.apscheduler import apscheduler
-from deskset.router.stand import DesksetRepJSON
+from deskset.router.unify import DesksetRepJSON
 
 from .noteapi import noteapi
 

@@ -3,8 +3,8 @@ from fastapi import APIRouter, Depends
 import deskset.feature.quick as quick
 
 from deskset.router.access import check_token
-from deskset.router.stand import DesksetReqPath, DesksetReqFolder, DesksetReqURL
-from deskset.router.stand import DesksetRepJSON
+from deskset.router.unify import DesksetReqPath, DesksetReqFolder, DesksetReqURL
+from deskset.router.unify import DesksetRepJSON
 
 router_quick = APIRouter(
     prefix='/v0/quick', tags=['快速启动'],
