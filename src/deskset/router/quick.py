@@ -47,7 +47,6 @@ from deskset.router.access import check_token
 from deskset.presenter.format import format_return
 
 import deskset.feature.quick as quick
-import deskset.feature.app.vscode as app_vscode
 
 router_quick = APIRouter(prefix='/v0/quick', tags=['快速启动'], dependencies=[Depends(check_token)])
 
@@ -69,7 +68,7 @@ def open_web_through_url(req: RequestWeb):
 
 @router_quick.post('/open-folder-by-vscode')
 def open_folder_by_vscode(req: RequestFolder):
-    app_vscode.open_folder_by_vscode(req.path)
+    quick.open_folder_by_vscode(req.path)
     return format_return('成功通过 vscode 打开文件夹：{}'.format(req.path))
 
 @router_quick.get('/open-recycle')
@@ -77,7 +76,7 @@ def open_recycle():
     quick.open_recycle()
     return format_return('成功打开回收站')
 
-@router_quick.post('/execute-script')
-def execute_script(req: RequestScript):
-    quick.execute_script(req.relpath)
-    return format_return('成功执行脚本')  # 后面加上返回值
+# @router_quick.post('/execute-script')
+# def execute_script(req: RequestScript):
+#     quick.execute_script(req.relpath)
+#     return format_return('成功执行脚本')  # 后面加上返回值
