@@ -10,7 +10,7 @@ class ReqStr(BaseModel):  # 确保写入配置文件之后，再去检查
 
 # === 路由 ===
 from fastapi import APIRouter, Depends
-from deskset.router.access import check_token
+from deskset.router.unify import check_token
 
 from deskset.presenter.format import format_return
 

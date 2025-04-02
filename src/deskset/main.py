@@ -113,7 +113,7 @@ def deskset_exception(request: Request, exc: Exception):
 
 
 # ==== FastAPI Router：认证接口 ====
-from deskset.router.access import router_access
+from deskset.router.unify import router_access
 app.include_router(router_access)
 
 

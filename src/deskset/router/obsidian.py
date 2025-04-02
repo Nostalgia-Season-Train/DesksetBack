@@ -50,7 +50,7 @@ def check_init() -> None:
 from fastapi import APIRouter, Depends, Query
 from deskset.presenter.format import format_return
 
-from deskset.router.access import check_token
+from deskset.router.unify import check_token
 
 
 # 创建路由

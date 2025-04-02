@@ -41,7 +41,7 @@ class DesksetResponse(Response):
 
 # ==== 路由 ====
 from fastapi import APIRouter, Depends
-from deskset.router.access import check_token
+from deskset.router.unify import check_token
 
 router_profile = APIRouter(
     prefix='/v0/profile',

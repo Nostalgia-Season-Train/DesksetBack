@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 
 import deskset.feature.quick as quick
 
-from deskset.router.access import check_token
+from deskset.router.unify import check_token
 from deskset.router.unify import DesksetReqPath, DesksetReqFolder, DesksetReqURL
 from deskset.router.unify import DesksetRepJSON
 
