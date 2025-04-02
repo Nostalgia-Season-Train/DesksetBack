@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends
 
 from deskset.feature.apscheduler import apscheduler
-from deskset.router.stand_response import DesksetJSONResponse
+from deskset.router.stand import DesksetRepJSON
 
 from .noteapi import noteapi
 
 router_period_task = APIRouter(
     prefix='/period-task', tags=['Period Task'],
-    default_response_class=DesksetJSONResponse
+    default_response_class=DesksetRepJSON
 )
 
 @router_period_task.get('/add-hello-task')

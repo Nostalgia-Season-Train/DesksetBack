@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends
 
 from deskset.core.config import config
-from deskset.router.stand_response import DesksetJSONResponse
+from deskset.router.stand import DesksetReqDateDay, DesksetReqDateMonth
+from deskset.router.stand import DesksetRepJSON
 
 from .noteapi import noteapi
-from .validate import DesksetReqDateDay, DesksetReqDateMonth
 
 router_obsidian = APIRouter(
     prefix='/obsidian', tags=['Obsidian'],
-    default_response_class=DesksetJSONResponse
+    default_response_class=DesksetRepJSON
 )
 
 

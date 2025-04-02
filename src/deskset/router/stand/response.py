@@ -2,7 +2,7 @@
 from fastapi import Response
 import orjson
 
-class DesksetJSONResponse(Response):
+class DesksetRepJSON(Response):
     media_type = 'application/json'
 
     def render(self, content: object) -> bytes:
