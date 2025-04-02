@@ -96,16 +96,12 @@ if not DEVELOP_ENV:  # Tauri 构建后用 http://tauri.localhost 通信...
 from fastapi.requests import Request
 from deskset.core.standard import DesksetError
 from fastapi.responses import JSONResponse
-from deskset.presenter.format import format_return
+from deskset.router.stand import DesksetErrorRep
 from http import HTTPStatus
 
 @app.exception_handler(DesksetError)
 def deskset_error(request: Request, err: DesksetError):
-    # JSONResponse 编码默认 utf-8，deskset config 暂时无法影响
-    return JSONResponse(
-        # status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-        content=format_return(err)
-    )
+    return DesksetErrorRep(content=err)
 
 @app.exception_handler(Exception)
 def deskset_exception(request: Request, exc: Exception):

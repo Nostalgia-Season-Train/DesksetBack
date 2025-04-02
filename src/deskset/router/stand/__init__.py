@@ -19,3 +19,6 @@ from .request import DesksetReqURL
 
 # JSON 响应
 from .response import DesksetRepJSON
+
+# DesksetError 错误响应
+from .response import DesksetErrorRep
