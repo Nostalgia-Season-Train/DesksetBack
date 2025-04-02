@@ -5,12 +5,6 @@ from typing import Any
 from deskset.core.log import logging
 from deskset.core.locale import _t
 
-@dataclass
-class DesksetSuccess():
-    code:    int = 0
-    message: str = _t('Success')
-    data:    Any = None
-
 class DesksetError(Exception):
     def __init__(
             self,
@@ -40,10 +34,3 @@ class DesksetError(Exception):
 
             # 报错后，不替换占位符，返回原字符串
             return DesksetError(code=self.code, message=self.message)
-
-@dataclass
-class DesksetReturn():
-    success: bool = False
-    code:    int  = -1
-    message: str  = _t('Not Sure Success Or Failure')
-    data:    Any  = None

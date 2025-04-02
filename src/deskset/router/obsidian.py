@@ -48,15 +48,14 @@ def check_init() -> None:
 
 # === 路由 ===
 from fastapi import APIRouter, Depends, Query
-from deskset.presenter.format import format_return
-
-from deskset.router.unify import check_token
+from deskset.router.unify import check_token, DesksetRepJSON
 
 
 # 创建路由
 router_obsidian = APIRouter(
     prefix='/v0/obsidian', tags=['Obsidian'],
-    dependencies=[Depends(check_token), Depends(check_init)]
+    dependencies=[Depends(check_token), Depends(check_init)],
+    default_response_class=DesksetRepJSON
 )
 
 router_diary = APIRouter(prefix='/diary')
@@ -71,27 +70,27 @@ router_manager = APIRouter(prefix='/manager')
 # 列出一个月中的日记
 @router_diary.get('/list-a-month/{date}')
 def list_a_month(date):
-    return format_return(obsidian.diary.list_a_month(date))
+    return obsidian.diary.list_a_month(date)
 
 # 打开 -> 选择日记
 @router_diary.get('/open/{date}')
 def open(date):
-    return format_return(obsidian.diary.choose(date))
+    return obsidian.diary.choose(date)
 
 # 在 Obsidian 中打开日记
 @router_diary.get('/open-in-obsidian')
 def open_in_obsidian():
-    return format_return(obsidian.diary.open_in_obsidian())
+    return obsidian.diary.open_in_obsidian()
 
 # 返回日记全部内容
 @router_diary.get('/content')
 def read():
-    return format_return(obsidian.diary.read())
+    return obsidian.diary.read()
 
 # 返回日记中的动态
 @router_diary.get('/activity')
 def read_activity():
-    return format_return(obsidian.diary.read_activitys())
+    return obsidian.diary.read_activitys()
 
 
 # 路由：搜索
@@ -101,12 +100,12 @@ def read_activity():
 def find_note(query: str = Query(None)):
     if query == '':  # 空字符串视作 None，即结束查询的标志。注：/find-note 传入 None，/find-note?query= 传入 ''
         query = None
-    return format_return(obsidian.search.search(query))
+    return obsidian.search.search(query)
 
 # 在 Obsidian 中打开笔记
 @router_search.get('/open-note/{relpath:path}')
 def open_note(relpath: str):
-    return format_return(obsidian.search.open_in_obsidian(relpath))
+    return obsidian.search.open_in_obsidian(relpath)
 
 
 # 路由：最近笔记
@@ -114,7 +113,7 @@ def open_note(relpath: str):
 # 最近打开
 @router_recent.get('/recent-open')
 def recent_open():
-    return format_return(obsidian.recent.recent_open())
+    return obsidian.recent.recent_open()
 
 
 # 路由：管理
@@ -122,7 +121,7 @@ def recent_open():
 # 在 Obsidian 中打开笔记
 @router_manager.get('/open-note/{relpath:path}')
 def open_note(relpath: str):
-    return format_return(obsidian.manager.open_note_by_relpath(relpath))
+    return obsidian.manager.open_note_by_relpath(relpath)
 
 
 # 注册路由

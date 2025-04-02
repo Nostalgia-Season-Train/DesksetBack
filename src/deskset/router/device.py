@@ -12,50 +12,49 @@ def check_init() -> None:
 
 # === 路由 ===
 from fastapi import APIRouter, Depends
-from deskset.router.unify import check_token
-
-from deskset.presenter.format import format_return
+from deskset.router.unify import check_token, DesksetRepJSON
 
 router_device = APIRouter(
     prefix='/v0/device', tags=['设备信息'],
-    dependencies=[Depends(check_token), Depends(check_init)]
+    dependencies=[Depends(check_token), Depends(check_init)],
+    default_response_class=DesksetRepJSON
 )
 
 
 # CPU 信息
 @router_device.get('/cpu')
 def get_cpu():
-    return format_return(device.cpu())
+    return device.cpu()
 
 # 内存信息
 @router_device.get('/memory')
 def get_memory():
-    return format_return(device.memory())
+    return device.memory()
 
 # 硬盘信息
 @router_device.get('/disk')
 def get_disk():
-    return format_return(device.disk_partitions())
+    return device.disk_partitions()
 
 # 硬盘占用率（活动时间）
 @router_device.get('/disk-useage')
 def get_disk_useage():
-    return format_return(device.disk_useage())
+    return device.disk_useage()
 
 # 网络信息
 @router_device.get('/network')
 def get_network():
-    return format_return(device.network)
+    return device.network
 
 # 电池信息
 @router_device.get('/battery')
 def get_battery():
-    return format_return(device.battery())
+    return device.battery()
 
 # 系统信息
 @router_device.get('/system')
 def get_system():
-    return format_return(device.system())
+    return device.system()
 
 # SSE 返回消息
 from asyncio import sleep, CancelledError
