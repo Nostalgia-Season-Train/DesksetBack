@@ -1,18 +1,7 @@
 from fastapi import APIRouter, Depends
-
-from deskset.core.config import config
 from deskset.router.unify import DesksetReqDateDay, DesksetReqDateMonth
-from deskset.router.unify import DesksetRepJSON
+from ..noteapi import noteapi
 
-from .noteapi import noteapi
-
-router_obsidian = APIRouter(
-    prefix='/obsidian', tags=['Obsidian'],
-    default_response_class=DesksetRepJSON
-)
-
-
-# ==== 日记 ====
 router_diary = APIRouter(prefix='/diary')
 
 @router_diary.get('/today')
@@ -37,24 +26,3 @@ async def read_day(date: DesksetReqDateDay = Depends()):
 async def read_month(date: DesksetReqDateMonth = Depends()):
     diarys = (await noteapi.get(f'/diary/read-month/{date.month}')).json()
     return diarys
-
-
-# ==== 数据统计 ====
-router_stats = APIRouter(prefix='/stats')
-
-@router_stats.get('/note-number')
-async def note_number():
-    return (await noteapi.get(f'/stats/note-number')).json()
-
-@router_stats.get('/heatmap')
-async def heatmap():
-    return (await noteapi.get(f'/stats/heatmap/7')).json()
-
-@router_stats.get('/use-days')
-async def use_days():
-    return (await noteapi.get(f'/stats/use-days')).json()
-
-
-# ==== 注册 Obsidian 的子路由 ====
-router_obsidian.include_router(router_diary)
-router_obsidian.include_router(router_stats)
