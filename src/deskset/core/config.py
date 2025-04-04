@@ -176,7 +176,7 @@ def read_conf_file(instance: object) -> None:
 
 # ==== 配置读写函数（绝对路径） ====
   # 配置路径从绝对路径 _confabspath（包括文件后缀）读取
-def write_conf_file_abspath(instance: object) -> None:
+def write_conf_file_abspath(instance: object, decoder: str = 'yaml') -> None:
     if getattr(instance, '_confabspath', None) is None:
         raise ValueError(f'_confabspath not exist in {type(instance)} class')
     abspath = Path(instance._confabspath)
@@ -194,10 +194,13 @@ def write_conf_file_abspath(instance: object) -> None:
     abspath.parent.mkdir(parents=True, exist_ok=True)  # open 不会创建目录，用 Path 提前创建
 
     with open(abspath, 'w', encoding='utf-8') as file:
-        yaml.dump(items, file, allow_unicode=True, sort_keys=False)  # sort_keys=False 不排序
+        if decoder == 'yaml':
+            yaml.dump(items, file, allow_unicode=True, sort_keys=False)  # sort_keys=False 不排序
+        if decoder == 'json':
+            json.dump(items, file, ensure_ascii=False, indent=4)
 
 
-def read_conf_file_abspath(instance: object) -> None:
+def read_conf_file_abspath(instance: object, decoder: str = 'yaml') -> None:
     if getattr(instance, '_confabspath', None) is None:
         raise ValueError(f'_confabspath not exist in {type(instance)} class')
     abspath = Path(instance._confabspath)
@@ -207,10 +210,16 @@ def read_conf_file_abspath(instance: object) -> None:
     if not abspath.is_file():
         raise READ_CONFFILE_ERROR.insert(abspath, '文件不存在')
     with open(abspath, 'r', encoding='utf-8') as file:
-        try:
-            items: dict = yaml.safe_load(file)
-        except yaml.YAMLError:
-            raise READ_CONFFILE_ERROR.insert(abspath, 'YAML 解析失败')
+        if decoder == 'yaml':
+            try:
+                items: dict = yaml.safe_load(file)
+            except yaml.YAMLError:
+                raise READ_CONFFILE_ERROR.insert(abspath, 'YAML 解析失败')
+        if decoder == 'json':
+            try:
+                items: dict = json.load(file)
+            except json.JSONDecodeError:
+                raise READ_CONFFILE_ERROR.insert(abspath, 'JSON 解析失败')
 
         # 没解析成字典，也算异常
         if not isinstance(items, dict):
