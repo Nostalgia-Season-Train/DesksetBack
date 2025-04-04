@@ -1,1 +1,2 @@
-from . import conf
+from .conf import ConfVault
+from .conf import ConfVaultObserver
