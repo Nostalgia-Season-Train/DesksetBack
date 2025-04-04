@@ -12,5 +12,5 @@ router_note = APIRouter(
 from .obsidian import router_obsidian
 router_note.include_router(router_obsidian)
 
-from .period_task import router_period_task
-router_note.include_router(router_period_task)
+from .scheduler import router_apscheduler
+router_note.include_router(router_apscheduler)

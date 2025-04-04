@@ -1,16 +1,16 @@
 from fastapi import APIRouter, Depends
 
-from deskset.feature.apscheduler import apscheduler
+from deskset.feature.note import apscheduler
 from deskset.router.unify import DesksetRepJSON
 
 from .noteapi import noteapi
 
-router_period_task = APIRouter(
-    prefix='/period-task', tags=['Period Task'],
+router_apscheduler = APIRouter(
+    prefix='/apscheduler', tags=['Apscheduler'],
     default_response_class=DesksetRepJSON
 )
 
-@router_period_task.get('/add-hello-task')
+@router_apscheduler.get('/add-hello-task')
 async def hello_task():
     async def hello():
         import asyncio
