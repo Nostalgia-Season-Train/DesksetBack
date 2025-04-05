@@ -17,15 +17,15 @@ class ConfNoteAPI:
 
     def __init__(self, vault_path: str) -> None:
         check_vault(vault_path)
-        self._decoder = 'json'
+        self._format = 'json'
         self._confabspath = str(Path(vault_path) / '.deskset' / 'noteapi.json')
         self._confitem_noteapi_host = '127.0.0.1'
         self._confitem_noteapi_port = 6528
         self._confitem_server_host = '127.0.0.1'
         self._confitem_server_port = 6527
         try:
-            read_conf_file_abspath(self, self._decoder)
+            read_conf_file_abspath(self, self._format)
         except DesksetError as err:
             logging.error(err.message)
         finally:
-            write_conf_file_abspath(self, self._decoder)
+            write_conf_file_abspath(self, self._format)
