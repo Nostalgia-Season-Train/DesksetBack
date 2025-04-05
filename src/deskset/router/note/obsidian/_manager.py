@@ -38,3 +38,12 @@ def get_vault_path():
 @router_obsidian_manager.post('/vault/set-path')
 def set_vault_path(req: DesksetReqFolder):
     conf_vault.path = req.path
+
+# NoteAPI 通知 Back 自身状态：上线/下线
+@router_obsidian_manager.get('/noteapi/online')
+def noteapi_notify_online():
+    print('NoteAPI online')
+
+@router_obsidian_manager.get('/noteapi/offline')
+def noteapi_notify_offline():
+    print('NoteAPI offline')

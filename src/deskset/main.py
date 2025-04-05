@@ -64,18 +64,21 @@ app = FastAPI(lifespan=lifespan)
 
 
 # ==== FastAPI：CORS 跨域请求 ====
+  # Vite：http://localhost:1420
+  # Tauri：http://tauri.localhost
+  # Obsidian：app://obsidian.md
 if DEVELOP_ENV:  # 开发时有 Vite Server 需要添加 CORS
     from fastapi.middleware.cors import CORSMiddleware
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins='http://localhost:1420',
+        allow_origins=['http://localhost:1420', 'app://obsidian.md'],
         allow_credentials=True,
         allow_methods=['*'],
         allow_headers=['*'],
     )
 
-    logging.info(f'Add http://localhost:1420 to CORS')
+    logging.info(f'Add http://localhost:1420, app://obsidian.md to CORS')
 
 if not DEVELOP_ENV:  # Tauri 构建后用 http://tauri.localhost 通信...
     from fastapi.middleware.cors import CORSMiddleware
@@ -83,13 +86,13 @@ if not DEVELOP_ENV:  # Tauri 构建后用 http://tauri.localhost 通信...
     # 会覆盖上面的 CORS，不要一起用
     app.add_middleware(
         CORSMiddleware,
-        allow_origins='http://tauri.localhost',
+        allow_origins=['http://tauri.localhost', 'app://obsidian.md'],
         allow_credentials=True,
         allow_methods=['*'],
         allow_headers=['*'],
     )
 
-    logging.info(f'Add http://tauri.localhost to CORS')
+    logging.info(f'Add http://tauri.localhost, app://obsidian.md to CORS')
 
 
 # ==== FastAPI：统一错误（异常）处理 ====
