@@ -6,6 +6,10 @@ router_obsidian = APIRouter(
     default_response_class=DesksetRepJSON
 )
 
+# 通用
+from .common import router_common
+router_obsidian.include_router(router_common)
+
 # 日记
 from .diary import router_diary
 router_obsidian.include_router(router_diary)
