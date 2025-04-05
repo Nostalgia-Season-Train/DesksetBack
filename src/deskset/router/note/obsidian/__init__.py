@@ -13,3 +13,7 @@ router_obsidian.include_router(router_diary)
 # 数据统计
 from .stats import router_stats
 router_obsidian.include_router(router_stats)
+
+# 搜索
+from .search import router_search
+router_obsidian.include_router(router_search)
