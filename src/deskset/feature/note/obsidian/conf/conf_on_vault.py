@@ -38,6 +38,7 @@ class ConfProfile:
 
     def __init__(self, vault_path: str) -> None:
         check_vault(vault_path)
+        self.avatar = Path(vault_path) / '.deskset' / 'profile' / 'avatar.png'  # 头像绝对路径
         self._confabspath = str(Path(vault_path) / '.deskset' / 'profile' / 'data.yaml')
         self._confitem_name = '数字桌搭'
         self._confitem_bio = '数字桌搭，桌面美化与笔记应用的完美互动'
