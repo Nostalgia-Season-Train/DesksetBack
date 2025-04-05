@@ -10,6 +10,10 @@ router_obsidian = APIRouter(
 from .common import router_common
 router_obsidian.include_router(router_common)
 
+# 个性资料
+from .profile import router_profile
+router_obsidian.include_router(router_profile)
+
 # 日记
 from .diary import router_diary
 router_obsidian.include_router(router_diary)

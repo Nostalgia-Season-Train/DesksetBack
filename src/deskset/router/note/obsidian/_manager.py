@@ -17,6 +17,7 @@ class Manager(ConfVaultObserver):
             return
         self.is_init = True
         self.conf_noteapi = ConfNoteAPI(vault_path)
+        self.conf_profile = ConfProfile(vault_path)
 
 conf_vault = ConfVault()
 manager = Manager(conf_vault)

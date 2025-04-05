@@ -29,3 +29,21 @@ class ConfNoteAPI:
             logging.error(err.message)
         finally:
             write_conf_file_abspath(self, self._format)
+
+
+# ==== 个性资料 ====
+class ConfProfile:
+    _confitem_name: str
+    _confitem_bio: Optional[str]
+
+    def __init__(self, vault_path: str) -> None:
+        check_vault(vault_path)
+        self._confabspath = str(Path(vault_path) / '.deskset' / 'profile' / 'data.yaml')
+        self._confitem_name = '数字桌搭'
+        self._confitem_bio = '数字桌搭，桌面美化与笔记应用的完美互动'
+        try:
+            read_conf_file_abspath(self)
+        except DesksetError as err:
+            logging.error(err.message)
+        finally:
+            write_conf_file_abspath(self)
