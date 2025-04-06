@@ -43,9 +43,19 @@ class DesksetReqPath(BaseModel):
 
     @field_validator('path')
     @classmethod
-    def check_folder(cls, v: str) -> str:
+    def check_path(cls, v: str) -> str:
         if os.path.isfile(v) != True and os.path.isdir(v) != True:
             raise DesksetError(message=f'错误！路径 {v} 不存在！')
+        return v
+
+class DesksetReqFile(BaseModel):
+    path: str
+
+    @field_validator('path')
+    @classmethod
+    def check_file(cls, v: str) -> str:
+        if os.path.isfile(v) != True:
+            raise DesksetError(message=f'错误！文件 {v} 不存在！')
         return v
 
 class DesksetReqFolder(BaseModel):

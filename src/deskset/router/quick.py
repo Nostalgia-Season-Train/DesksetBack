@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends
+from fastapi import Response
 
 import deskset.feature.quick as quick
 
 from deskset.router.unify import check_token
-from deskset.router.unify import DesksetReqPath, DesksetReqFolder, DesksetReqURL
+from deskset.router.unify import DesksetReqPath, DesksetReqFile, DesksetReqFolder, DesksetReqURL
 from deskset.router.unify import DesksetRepJSON
 
 router_quick = APIRouter(
@@ -35,3 +36,10 @@ def open_folder_by_vscode(req: DesksetReqFolder):
 def open_recycle():
     quick.open_recycle()
     return '成功打开回收站'
+
+@router_quick.post('/file-icon')
+def get_file_icon(req: DesksetReqFile):
+    path = req.path
+    if path.endswith('.lnk'):  # 处理快捷方式：转换成其所指向文件的路径
+        path = quick.get_lnk_target(path)
+    return Response(content=quick.get_exe_icon(path), media_type='image/x-icon')

@@ -13,6 +13,7 @@ from .request import DesksetReqDateMonth  # 月份 验证 YYYYMM 格式
 
 # 路径、文件或文件夹请求
 from .request import DesksetReqPath
+from .request import DesksetReqFile
 from .request import DesksetReqFolder
 from .request import DesksetReqApp
 
