@@ -42,4 +42,8 @@ def get_file_icon(req: DesksetReqFile):
     path = req.path
     if path.endswith('.lnk'):  # 处理快捷方式：转换成其所指向文件的路径
         path = quick.get_lnk_target(path)
-    return Response(content=quick.get_exe_icon(path), media_type='image/x-icon')
+    if path.endswith('.exe'):
+        return Response(content=quick.get_exe_icon(path), media_type='image/x-icon')
+    else:
+        # 现在只能提取 exe 文件图标
+        return Response(content=b'', media_type='image/x-icon')
