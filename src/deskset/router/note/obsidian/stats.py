@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from deskset.router.unify import DesksetReqNumberInt
 from ..noteapi import noteapi
 
 router_stats = APIRouter(prefix='/stats')
@@ -7,9 +8,10 @@ router_stats = APIRouter(prefix='/stats')
 async def note_number():
     return (await noteapi.get(f'/stats/note-number')).json()
 
-@router_stats.get('/heatmap')
-async def heatmap():
-    return (await noteapi.get(f'/stats/heatmap/7')).json()
+@router_stats.get('/heatmap/{num}')
+async def heatmap(req: DesksetReqNumberInt = Depends()):
+    weeknum = req.num  # 统计范围：前 weeknum 周 + 本周
+    return (await noteapi.get(f'/stats/heatmap/{weeknum}')).json()
 
 @router_stats.get('/use-days')
 async def use_days():

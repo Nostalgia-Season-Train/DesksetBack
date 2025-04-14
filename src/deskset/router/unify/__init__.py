@@ -20,6 +20,9 @@ from .request import DesksetReqApp
 # 网址请求
 from .request import DesksetReqURL
 
+# 数字请求
+from .request import DesksetReqNumberInt
+
 
 # ==== 标准响应 ====
 

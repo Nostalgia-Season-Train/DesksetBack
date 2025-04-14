@@ -99,3 +99,13 @@ class DesksetReqURL(BaseModel):
         if not netloc:
             raise DesksetError(message=f'错误！网络位置 {netloc} 无效！')
         return v
+
+
+# ==== 验证数字 ====
+class DesksetReqNumberInt(BaseModel):
+    num: int
+
+    @field_validator('num')
+    @classmethod
+    def check_num(cls, v: int) -> int:  # Pydantic 自动验证 int 类型
+        return v
