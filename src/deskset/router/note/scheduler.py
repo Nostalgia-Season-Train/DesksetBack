@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from deskset.feature.note import apscheduler
 from deskset.router.unify import DesksetRepJSON
 
-from .noteapi import noteapi
+from .obsidian._noteapi import noteapi
 
 router_apscheduler = APIRouter(
     prefix='/apscheduler', tags=['Apscheduler'],

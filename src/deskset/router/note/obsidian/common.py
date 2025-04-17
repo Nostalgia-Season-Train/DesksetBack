@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from ..noteapi import noteapi
+from ._noteapi import noteapi
 
 router_common = APIRouter(prefix='/common')
 
