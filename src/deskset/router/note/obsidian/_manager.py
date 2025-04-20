@@ -23,7 +23,7 @@ conf_vault = ConfVault()
 manager = Manager(conf_vault)
 
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Form
 from deskset.router.unify import DesksetRepJSON
 from deskset.router.unify import DesksetReqFolder
 
@@ -41,10 +41,12 @@ def set_vault_path(req: DesksetReqFolder):
     conf_vault.path = req.path
 
 # NoteAPI 通知 Back 自身状态：上线/下线
-@router_obsidian_manager.get('/noteapi/online')
-def noteapi_notify_online():
-    print('NoteAPI online')
+@router_obsidian_manager.post('/noteapi/online')
+def noteapi_notify_online(token: str = Form()):
+    print(f'NoteAPI online and token is {token}')
+    return 'Back recevie NoteAPI online'
 
 @router_obsidian_manager.get('/noteapi/offline')
 def noteapi_notify_offline():
     print('NoteAPI offline')
+    return 'Back recevie NoteAPI offline'
