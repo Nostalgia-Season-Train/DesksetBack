@@ -13,12 +13,17 @@ async def get_current_note():
 async def get_recent_notes():
     workspace = (await noteapi.get('/obsidian/workspace')).json()
     recent_files = workspace.get('lastOpenFiles', []) if isinstance(workspace, dict) else []
-    return [file for file in recent_files if isinstance(file, str) and file.endswith('.md')]
+    from pathlib import Path
+    return [
+        { 'name': Path(file).stem, 'path': file }
+        for file in recent_files
+        if isinstance(file, str) and file.endswith('.md')
+    ]
 
-# 在 Obsidian 中打开笔记，笔记路径 notepath 以仓库为根目录
+# 在 Obsidian 中打开笔记，笔记路径 path 以仓库为根目录
 @router_common.get('/open')
-def open(notepath: str = Query(None)):
-    if (notepath == None):
+def open(path: str = Query(None)):
+    if (path == None):
         return
     from webbrowser import open
-    open(f'obsidian://open?path={ manager.vault }/{ notepath }')
+    open(f'obsidian://open?path={ manager.vault }/{ path }')
