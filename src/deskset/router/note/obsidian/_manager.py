@@ -16,8 +16,13 @@ class Manager(ConfVaultObserver):
             self.is_init = False
             return
         self.is_init = True
-        self.conf_noteapi = ConfNoteAPI(vault_path)
-        self.conf_profile = ConfProfile(vault_path)
+        self._vault_path = vault_path
+        self.conf_noteapi = ConfNoteAPI(self._vault_path)
+        self.conf_profile = ConfProfile(self._vault_path)
+
+    @property
+    def vault(self) -> str:
+        return self._vault_path
 
 conf_vault = ConfVault()
 manager = Manager(conf_vault)
