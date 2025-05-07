@@ -46,12 +46,12 @@ def set_vault_path(req: DesksetReqFolder):
     conf_vault.path = req.path
 
 # NoteAPI 通知 Back 自身状态：上线/下线
+from ._noteapi import noteapi
+
 @router_obsidian_manager.post('/noteapi/online')
-def noteapi_notify_online(address: str = Form(), token: str = Form()):
-    print(f'NoteAPI online, address is {address} and token is {token}')
-    return 'Back recevie NoteAPI online'
+async def noteapi_notify_online(address: str = Form(), token: str = Form()):
+    return (await noteapi.set_online(address, token))
 
 @router_obsidian_manager.post('/noteapi/offline')
-def noteapi_notify_offline(address: str = Form(), token: str = Form()):
-    print(f'NoteAPI offline, address is {address} and token is {token}')
-    return 'Back recevie NoteAPI offline'
+async def noteapi_notify_offline(address: str = Form(), token: str = Form()):
+    return (await noteapi.set_offline(address, token))
