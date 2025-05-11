@@ -2,6 +2,7 @@ from typing import Optional
 
 from httpx import AsyncClient, Response
 from httpx import ConnectError
+from asyncer import asyncify
 
 from deskset.core.log import logging
 from deskset.core.standard import DesksetError
@@ -16,7 +17,10 @@ class NoteAPI:
         self._token: Optional[str] = None
         self._httpx: Optional[AsyncClient] = None
 
-    async def set_online(self, address: str, token: str) -> str:
+        # 仓库信息
+        self._vault: Optional[str] = None  # 仓库绝对路径
+
+    async def set_online(self, address: str, token: str, vault: str) -> str:
         if self._is_online == True:
             raise DesksetError(message='NoteAPI in Back is online')
 
@@ -25,6 +29,8 @@ class NoteAPI:
         self._token = token
         self._httpx = AsyncClient(base_url=f'http://{address}', headers={ 'Authorization': f'Bearer {token}' })
         logging.info(f'NoteAPI online, address is {address} and token is {token}')
+
+        self._vault = vault
 
         return 'Back recevie NoteAPI online'
 
@@ -40,6 +46,8 @@ class NoteAPI:
         self._httpx = None
         logging.info(f'NoteAPI offline, address is {address} and token is {token}')
 
+        self._vault = None
+
         return 'Back recevie NoteAPI offline'
 
     async def _check_online(self) -> None:
@@ -51,6 +59,18 @@ class NoteAPI:
             return
         else:
             raise DesksetError(message=response.text)
+
+    # 在 Obsidian 中打开笔记
+      # notepath 以仓库为根目录，笔记在仓库下的相对路径
+      # 注：有时 Obsidian 窗口不会跳到前台，原因未知...
+    async def open(self, notepath = None) -> None:
+        await self._check_online()
+
+        from webbrowser import open
+        if notepath is None:
+            asyncify(open(f'obsidian://open?path={ self._vault }'))
+        else:
+            asyncify(open(f'obsidian://open?path={ self._vault }/{ notepath }'))
 
     async def get(self, url: str) -> Response:
         await self._check_online()

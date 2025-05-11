@@ -31,8 +31,5 @@ async def get_recent_notes():
 
 # 在 Obsidian 中打开笔记，笔记路径 path 以仓库为根目录
 @router_common.get('/open')
-def open(path: str = Query(None)):
-    if (path == None):
-        return
-    from webbrowser import open
-    open(f'obsidian://open?path={ manager.vault }/{ path }')
+async def open(path: str = Query(None)):
+    await noteapi.open(path)

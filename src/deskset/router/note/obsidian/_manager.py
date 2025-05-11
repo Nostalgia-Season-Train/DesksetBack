@@ -49,8 +49,12 @@ def set_vault_path(req: DesksetReqFolder):
 from ._noteapi import noteapi
 
 @router_obsidian_manager.post('/noteapi/online')
-async def noteapi_notify_online(address: str = Form(), token: str = Form()):
-    return (await noteapi.set_online(address, token))
+async def noteapi_notify_online(
+    address: str = Form(),
+    token: str = Form(),
+    vault: str = Form()
+):
+    return (await noteapi.set_online(address, token, vault))
 
 @router_obsidian_manager.post('/noteapi/offline')
 async def noteapi_notify_offline(address: str = Form(), token: str = Form()):
