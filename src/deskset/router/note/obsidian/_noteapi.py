@@ -1,4 +1,5 @@
 from typing import Optional
+from asyncio import Event
 
 from httpx import AsyncClient, Response
 from httpx import ConnectError
@@ -20,6 +21,13 @@ class NoteAPI:
         # 仓库信息
         self._vault: Optional[str] = None  # 仓库绝对路径
 
+        # 上线下线事件
+        self.online_status = Event()
+        self.offline_status = Event()
+
+        self.online_status.clear()
+        self.offline_status.set()
+
     async def set_online(self, address: str, token: str, vault: str) -> str:
         if self._is_online == True:
             raise DesksetError(message='NoteAPI in Back is online')
@@ -31,6 +39,9 @@ class NoteAPI:
         logging.info(f'NoteAPI online, address is {address} and token is {token}')
 
         self._vault = vault
+
+        self.online_status.set()
+        self.offline_status.clear()
 
         return 'Back recevie NoteAPI online'
 
@@ -47,6 +58,9 @@ class NoteAPI:
         logging.info(f'NoteAPI offline, address is {address} and token is {token}')
 
         self._vault = None
+
+        self.online_status.clear()
+        self.offline_status.set()
 
         return 'Back recevie NoteAPI offline'
 

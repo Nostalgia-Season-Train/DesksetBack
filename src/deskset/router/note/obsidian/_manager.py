@@ -29,6 +29,7 @@ manager = Manager(conf_vault)
 
 
 from fastapi import APIRouter, Form
+from fastapi.responses import StreamingResponse
 from deskset.router.unify import DesksetRepJSON
 from deskset.router.unify import DesksetReqFolder
 
@@ -59,3 +60,15 @@ async def noteapi_notify_online(
 @router_obsidian_manager.post('/noteapi/offline')
 async def noteapi_notify_offline(address: str = Form(), token: str = Form()):
     return (await noteapi.set_offline(address, token))
+
+# 通过流式响应，触发上下线事件
+@router_obsidian_manager.get('/noteapi/event')
+async def event():
+    async def stream():
+        await noteapi.online_status.wait()
+        yield 'Online'
+        await noteapi.offline_status.wait()
+        yield 'Offline'
+        return
+
+    return StreamingResponse(stream(), media_type='text/plain')  # 加上 text/plain 这样 DevTools/网络/响应 才会显示文字
