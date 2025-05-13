@@ -98,11 +98,21 @@ class NoteAPI:
             await self.set_offline(self._address, self._token)
             raise DesksetError(message='Obsidian 被意外关闭，切回下线状态')
 
-    async def post(self, url: str, data: object) -> Response:
+    async def post(
+            self,
+            # 参数顺序遵循 REST Client 插件
+            url: str,
+            headers: Optional[dict] = None,
+            data: Optional[object] = None
+        ) -> Response:
         await self._check_online()
 
         try:
-            response = await self._httpx.get(url=url, data=data)
+            response = await self._httpx.post(
+                url=url,
+                headers=headers,
+                data=data
+            )
             await self._check_response(response)
             return response
         except ConnectError:

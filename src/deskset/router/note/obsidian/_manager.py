@@ -72,3 +72,51 @@ async def event():
         return
 
     return StreamingResponse(stream(), media_type='text/plain')  # 加上 text/plain 这样 DevTools/网络/响应 才会显示文字
+
+# 登入登出
+  # 以下由于架构问题，无法实现
+   # 注 1：独立处理登入登出的类。原因：登出需要 noteapi._token
+   # 注 2：服务器关闭时，通过生命周期登出。原因：NoteAPI 登出会访问 /noteapi/offline，其在生命周期执行前关闭
+from httpx import AsyncClient
+
+from deskset.core.config import config
+from deskset.router.unify.access import access
+
+@router_obsidian_manager.post('/login-in')
+async def login_in(
+    address: str = Form('127.0.0.1:6528'),
+    username: str = Form('noteapi-user'),
+    password: str = Form('noteapi-pswd')
+):
+    async with AsyncClient() as client:
+        response = await client.post(
+            url=f'http://{address}/unify/login-in',
+            headers={
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data={
+                'username': username,
+                'password': password,
+                'backaddress': f'{config.server_host}:{config.server_port}',
+                'backtoken': access.token
+            }
+        )
+
+        if response.status_code != 200:
+            from deskset.core.standard import DesksetError
+            raise DesksetError(message=response.text)
+
+        return response.text
+
+@router_obsidian_manager.post('/login-out')
+async def login_out():
+    return (await noteapi.post(
+        url='/unify/login-out',
+        headers={
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data={
+            'backaddress': f'{config.server_host}:{config.server_port}',
+            'backtoken': access.token
+        }
+    )).text
