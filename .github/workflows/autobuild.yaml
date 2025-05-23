@@ -24,10 +24,15 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    # 第二步：执行构建，需要提前下载 nuitka
+    - name: Install a specific version of uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        version: "0.7.7"
+
+    # 第二步：执行构建
     - name: Build
       run: |
-        pip install nuitka==2.5.7
+        uv sync
         python setup.py
 
     # 第三步：发布
