@@ -17,7 +17,7 @@ DEBUG_MODE  = False  # 调试模式
 from pathlib import Path
 
 Path('./config').mkdir(exist_ok=True)  # 配置 core.config
-Path('./log').mkdir(exist_ok=True)     # 日志 core.log
+Path('./logs').mkdir(exist_ok=True)    # 日志 core.log
 
 Path('./i18n').mkdir(exist_ok=True)  # 翻译 core.locale
 
