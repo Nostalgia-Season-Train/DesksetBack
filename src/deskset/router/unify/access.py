@@ -1,12 +1,26 @@
 # 检查参数
 import sys
-args = sys.argv
-DEVELOP_ENV = True if '-dev' in args else False
+
+DEVELOP_ENV = False     # 开发环境
+DISABLE_ACCESS = False  # （仅限开发环境）是否禁用认证，方便调试
+ACCESS_TOKEN = None     # （不为空，见下）使用命令行传入的 token
+
+for arg in sys.argv:
+    if arg == '-dev':
+        DEVELOP_ENV = True
+        continue
+    if arg == '-no-access':
+        DISABLE_ACCESS = True
+        continue
+    if arg.startswith('-token='):
+        token = arg.replace('-token=', '')
+        if token != '':
+            ACCESS_TOKEN = token
+        continue
+
 
 # access 权限
 from deskset.core.config import config
-
-DISABLE_ACCESS = False  # 临时禁用认证，方便调试
 
 if DISABLE_ACCESS:
     from deskset.core.log import logging
@@ -33,7 +47,8 @@ class Access(object):
 
     @property
     def token(self) -> str:
-        return self._token
+        # return self._token  # - [ ] 临时：不返回正确 token
+        return 'use -token= instead'
 
     def set_token(self, token: str) -> None:
         self._token = token
@@ -42,6 +57,9 @@ class Access(object):
         return self._token
 
 access = Access()
+
+if ACCESS_TOKEN is not None:
+    access.set_token(ACCESS_TOKEN)
 
 
 # oauth2_scheme 获取 token => check_token 验证 token
