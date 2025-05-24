@@ -38,47 +38,7 @@ router_obsidian_manager = APIRouter(
     default_response_class=DesksetRepJSON
 )
 
-@router_obsidian_manager.get('/vault/get-path')
-def get_vault_path():
-    return conf_vault.path
-
-@router_obsidian_manager.post('/vault/set-path')
-def set_vault_path(req: DesksetReqFolder):
-    conf_vault.path = req.path
-
-# NoteAPI 通知 Back 自身状态：上线/下线
-from ._noteapi import noteapi
-
-@router_obsidian_manager.post('/noteapi/online')
-async def noteapi_notify_online(
-    address: str = Form(),
-    token: str = Form(),
-    vault: str = Form()
-):
-    return (await noteapi.set_online(address, token, vault))
-
-@router_obsidian_manager.post('/noteapi/offline')
-async def noteapi_notify_offline(address: str = Form(), token: str = Form()):
-    return (await noteapi.set_offline(address, token))
-
-# 通过流式响应，触发上下线事件
-@router_obsidian_manager.get('/noteapi/event')
-async def event():
-    async def stream():
-        await noteapi.online_status.wait()
-        yield 'Online'
-        await noteapi.offline_status.wait()
-        yield 'Offline'
-        return
-
-    return StreamingResponse(stream(), media_type='text/plain')  # 加上 text/plain 这样 DevTools/网络/响应 才会显示文字
-
-# 登入登出
-  # 以下由于架构问题，无法实现
-   # 注 1：独立处理登入登出的类。原因：登出需要 noteapi._token
-   # 注 2：服务器关闭时，通过生命周期登出。原因：NoteAPI 登出会访问 /noteapi/offline，其在生命周期执行前关闭
 from httpx import AsyncClient
-
 from deskset.core.config import config
 from deskset.router.unify.access import access
 
@@ -108,15 +68,28 @@ async def login_in(
 
         return response.text
 
-@router_obsidian_manager.post('/login-out')
-async def login_out():
-    return (await noteapi.post(
-        url='/unify/login-out',
-        headers={
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data={
-            'backaddress': f'{config.server_host}:{config.server_port}',
-            'backtoken': access.token
-        }
-    )).text
+from fastapi import WebSocket, WebSocketDisconnect
+from ._noteapi import noteapi
+
+@router_obsidian_manager.websocket('/ws-event')
+async def ws_event(websocket: WebSocket):
+    await websocket.accept()
+
+    try:
+        # 首次传输：初始化
+        noteapi_info = await websocket.receive_json()
+
+        address = noteapi_info['address']
+        token = noteapi_info['token']
+        path = noteapi_info['path']
+        setting = noteapi_info['setting']
+
+        await noteapi.set_online(address, token, path)
+
+        # 后续传输：Obsidian 消息事件
+        while True:
+            await websocket.receive_json()
+    except WebSocketDisconnect:
+        pass
+    finally:
+        await noteapi.set_offline(address, token)
