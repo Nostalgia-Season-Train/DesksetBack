@@ -3,6 +3,7 @@ from asyncio import Event
 
 from httpx import AsyncClient, Response
 from httpx import ConnectError
+from fastapi import WebSocket
 from asyncer import asyncify
 
 from deskset.core.log import logging
@@ -16,10 +17,14 @@ class NoteAPI:
         self._is_online: bool = False
         self._address: Optional[str] = None
         self._token: Optional[str] = None
+
+        # http 或 websocket 通信
         self._httpx: Optional[AsyncClient] = None
+        self._websocket: WebSocket | None
 
         # 仓库信息
         self._vault: Optional[str] = None  # 仓库绝对路径
+        self._setting: dict | None
 
         # 上线下线事件
         self.online_status = Event()
@@ -28,20 +33,24 @@ class NoteAPI:
         self.online_status.clear()
         self.offline_status.set()
 
-    async def set_online(self, address: str, token: str, vault: str) -> str:
+    async def set_online(self, address: str, token: str, vault: str, setting: dict, websocket: WebSocket) -> str:
         if self._is_online == True:
             raise DesksetError(message='NoteAPI in Back is online')
 
         self._is_online = True
         self._address = address
         self._token = token
+
         self._httpx = AsyncClient(base_url=f'http://{address}', headers={ 'Authorization': f'Bearer {token}' })
-        logging.info(f'NoteAPI online, address is {address} and token is {token}')
+        self._websocket = websocket
 
         self._vault = vault
+        self._setting = setting
 
         self.online_status.set()
         self.offline_status.clear()
+
+        logging.info(f'NoteAPI online, address is {address} and token is {token}')
 
         return 'Back recevie NoteAPI online'
 
@@ -54,13 +63,17 @@ class NoteAPI:
         self._is_online = False
         self._address = None
         self._token = None
+
         self._httpx = None
-        logging.info(f'NoteAPI offline, address is {address} and token is {token}')
+        self._websocket = None
 
         self._vault = None
+        self._setting = None
 
         self.online_status.clear()
         self.offline_status.set()
+
+        logging.info(f'NoteAPI offline, address is {address} and token is {token}')
 
         return 'Back recevie NoteAPI offline'
 

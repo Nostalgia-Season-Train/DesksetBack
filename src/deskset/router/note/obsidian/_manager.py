@@ -84,7 +84,7 @@ async def ws_event(websocket: WebSocket):
         path = noteapi_info['path']
         setting = noteapi_info['setting']
 
-        await noteapi.set_online(address, token, path)
+        await noteapi.set_online(address, token, path, setting, websocket)
 
         # 后续传输：Obsidian 消息事件
         while True:
