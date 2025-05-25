@@ -9,6 +9,8 @@ from asyncer import asyncify
 from deskset.core.log import logging
 from deskset.core.standard import DesksetError
 
+from ._validate import Setting
+
 logging.getLogger('httpx').setLevel(logging.ERROR)  # 禁止 httpx 输出 ERROR 级别以下的日志
 
 
@@ -24,7 +26,7 @@ class NoteAPI:
 
         # 仓库信息
         self._vault: Optional[str] = None  # 仓库绝对路径
-        self._setting: dict | None
+        self._setting: Setting | None
 
         # 上线下线事件
         self.online_status = Event()
@@ -33,7 +35,7 @@ class NoteAPI:
         self.online_status.clear()
         self.offline_status.set()
 
-    async def set_online(self, address: str, token: str, vault: str, setting: dict, websocket: WebSocket) -> str:
+    async def set_online(self, address: str, token: str, vault: str, setting: Setting, websocket: WebSocket) -> str:
         if self._is_online == True:
             raise DesksetError(message='NoteAPI in Back is online')
 
@@ -45,7 +47,7 @@ class NoteAPI:
         self._websocket = websocket
 
         self._vault = vault
-        self._setting = setting
+        self._setting = Setting.model_validate(setting)
 
         self.online_status.set()
         self.offline_status.clear()
