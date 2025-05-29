@@ -42,6 +42,9 @@ from httpx import AsyncClient
 from deskset.core.config import config
 from deskset.router.unify.access import access
 
+# - [ ] 等待封装进 manager
+wstoken = access._generate_token('username', 'password')
+
 @router_obsidian_manager.post('/login-in')
 async def login_in(
     address: str = Form('127.0.0.1:6528'),
@@ -58,7 +61,7 @@ async def login_in(
                 'username': username,
                 'password': password,
                 'backaddress': f'{config.server_host}:{config.server_port}',
-                'backtoken': access.token
+                'backtoken': wstoken
             }
         )
 
@@ -68,12 +71,23 @@ async def login_in(
 
         return response.text
 
-from fastapi import WebSocket, WebSocketDisconnect
+from fastapi import WebSocket, WebSocketDisconnect, HTTPException
 from ._noteapi import noteapi
 
 @router_obsidian_manager.websocket('/ws-event')
 async def ws_event(websocket: WebSocket):
-    await websocket.accept()
+    async def is_authorized(subprotocols: list[str]):
+        if len(subprotocols) != 2:
+            return False
+        if subprotocols[0] != 'Authorization':
+            return False
+        if subprotocols[1] != f'bearer-{wstoken}':
+            return False
+        return True
+
+    if not await is_authorized(websocket.scope['subprotocols']):
+        raise HTTPException(status_code=400, detail='无效密钥')
+    await websocket.accept('Authorization')  # 前后端都要有 Authorization 子协议，否则无法建立连接
 
     try:
         # 首次传输：初始化
