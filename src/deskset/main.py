@@ -63,6 +63,14 @@ from fastapi import FastAPI
 app = FastAPI(lifespan=lifespan)
 
 
+# ==== FastAPI：中间件 ====
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+
+# 仅允许本机访问
+  # 对 http 和 websocket 都生效
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=['127.0.0.1'])
+
+
 # ==== FastAPI：CORS 跨域请求 ====
   # Vite：http://localhost:1420
   # Tauri：http://tauri.localhost
