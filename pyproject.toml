@@ -1,8 +1,17 @@
 [project]
-name = "desksetback"
-version = "0.1.0"
-description = "数字桌搭-后端"
+name = "Deskset"
+version = "0.0.2-alpha"
+description = "数字桌搭后端 DesksetBack"
+authors = [
+    { name="旧日丨四季列车", email="Nostalgia-Season-Train@outlook.com" },
+]
 readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+classifiers = [
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: Windows",
+]
 requires-python = ">=3.12.10"
 dependencies = [
     "apscheduler==3.10.1",
@@ -20,3 +29,7 @@ dependencies = [
     "uvicorn==0.32.0",
     "websockets>=15.0.1",
 ]
+
+[project.urls]
+Homepage = "https://github.com/Nostalgia-Season-Train/DesksetBack"
+Issues = "https://github.com/Nostalgia-Season-Train/DesksetBack/issues"
