@@ -1,4 +1,4 @@
-name: Deskset Publish to TestPyPI
+name: Deskset Publish to PyPI
 
 
 on:
@@ -44,8 +44,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
 
-      - name: Publish package distributions to TestPyPI
+      - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          packages_dir: ./artifact
-          repository-url: https://test.pypi.org/legacy/
+          packages-dir: ./artifact
