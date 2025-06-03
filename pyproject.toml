@@ -10,7 +10,7 @@ license = "BSD-3-Clause"
 license-files = ["LICENSE"]
 classifiers = [
     "Programming Language :: Python :: 3.12",
-    "Operating System :: Windows",
+    "Operating System :: OS Independent",
 ]
 requires-python = ">=3.12.10"
 dependencies = [
