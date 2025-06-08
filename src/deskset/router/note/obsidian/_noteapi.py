@@ -92,14 +92,15 @@ class NoteAPI:
     # 在 Obsidian 中打开笔记
       # notepath 以仓库为根目录，笔记在仓库下的相对路径
       # 注：有时 Obsidian 窗口不会跳到前台，原因未知...
+        # 2025/06/08：经过测试，Obsidian 处于最小化窗口状态，才会弹出到前台
     async def open(self, notepath = None) -> None:
         await self._check_online()
 
         from webbrowser import open
         if notepath is None:
-            asyncify(open(f'obsidian://open?path={ self._vault }'))
+            await asyncify(open)(f'obsidian://open?path={ self._vault }')
         else:
-            asyncify(open(f'obsidian://open?path={ self._vault }/{ notepath }'))
+            await asyncify(open)(f'obsidian://open?path={ self._vault }/{ notepath }')
 
     async def get(self, url: str) -> Response:
         await self._check_online()
@@ -134,6 +135,11 @@ class NoteAPI:
             logging.info(f'Connect Obsidian Fail while in online state')
             await self.set_offline(self._address, self._token)
             raise DesksetError(message='Obsidian 被意外关闭，切回下线状态')
+
+    # --- 设置读写 ---
+    async def get_setting(self) -> Setting:
+        await self._check_online()
+        return self._setting
 
 
 noteapi = NoteAPI()
