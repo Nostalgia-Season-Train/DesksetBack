@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pydantic import BaseModel, field_validator
+from asyncer import asyncify
 
 from deskset.core.standard import DesksetError
 
@@ -25,6 +26,7 @@ class Profile(BaseModel):
 import arrow
 
 class Greet(BaseModel):
+    id: str  # 标识符 = YYYYMMDDHHmmss(创建日期时间) + 000000(同一时刻生成顺序)
     start: str  # 开始时间 HHmm
     end: str    # 结束时间 HHmm
     open: str     # 开场白（例：早上好）
@@ -32,12 +34,21 @@ class Greet(BaseModel):
 
     # 当前时间 HHmm
     @classmethod
-    def current(cls) -> str:
-        return arrow.now().format('HHmm')
+    async def current(cls) -> str:
+        now = await asyncify(arrow.now)()
+        current = await asyncify(now.format)('HHmm')
+        return current
+
+    @field_validator('id')
+    @classmethod
+    def check_id(cls, v: str) -> str:
+        if len(v) != 20:
+            raise DesksetError(message=f'标识符 {v} 长度错误，不等于 20')
+        return v
 
     @field_validator('start', 'end')
     @classmethod
-    def check_start(cls, v: str) -> str:
+    def check_time(cls, v: str) -> str:
         try:
             arrow.get(v, 'HHmm')
             return v
