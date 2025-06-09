@@ -10,6 +10,7 @@ from deskset.core.log import logging
 from deskset.core.standard import DesksetError
 
 from ._validate import Setting
+from ._validate import Greet
 
 logging.getLogger('httpx').setLevel(logging.ERROR)  # 禁止 httpx 输出 ERROR 级别以下的日志
 
@@ -137,9 +138,11 @@ class NoteAPI:
             raise DesksetError(message='Obsidian 被意外关闭，切回下线状态')
 
     # --- 设置读写 ---
-    async def get_setting(self) -> Setting:
+
+    # 问候语
+    async def get_greets(self) -> list[Greet]:
         await self._check_online()
-        return self._setting
+        return self._setting.greets
 
 
 noteapi = NoteAPI()

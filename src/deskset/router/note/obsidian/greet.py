@@ -34,7 +34,7 @@ router_greet = APIRouter(prefix='/greet')
 
 @router_greet.get('')
 async def greet():
-    greets = (await noteapi.get_setting()).greets
+    greets = await noteapi.get_greets()
     current = int(Greet.current())  # 现在时间
     start_inrange_greets: list[Greet] = []
     end_greets: list[Greet] = []
