@@ -48,7 +48,7 @@ class NoteAPI:
         self._websocket = websocket
 
         self._vault = vault
-        self._setting = Setting.model_validate(setting)
+        self._setting = await asyncify(Setting.model_validate)(setting)
 
         self.online_status.set()
         self.offline_status.clear()
