@@ -64,11 +64,26 @@ app = FastAPI(lifespan=lifespan)
 
 
 # ==== FastAPI：中间件 ====
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from starlette.responses import PlainTextResponse
+from starlette.types import ASGIApp, Receive, Scope, Send
 
 # 仅允许本机访问
   # 对 http 和 websocket 都生效
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=['127.0.0.1'])
+class AllowOnly127001tMiddleware:
+    def __init__(self, app: ASGIApp) -> None:
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope['type'] not in ('http', 'websocket'):
+            return await self.app(scope, receive, send)
+
+        if scope['client'][0] == '127.0.0.1':
+            return await self.app(scope, receive, send)
+        else:
+            response = PlainTextResponse('仅允许本机访问', status_code=400)
+            return await response(scope, receive, send)
+
+app.add_middleware(AllowOnly127001tMiddleware)
 
 
 # ==== FastAPI：CORS 跨域请求 ====
