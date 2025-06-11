@@ -10,7 +10,7 @@ from deskset.core.log import logging
 from deskset.core.standard import DesksetError
 
 from ._validate import Setting
-from ._validate import Greet
+from ._validate import GreetID
 
 logging.getLogger('httpx').setLevel(logging.ERROR)  # 禁止 httpx 输出 ERROR 级别以下的日志
 
@@ -140,9 +140,9 @@ class NoteAPI:
     # --- 设置读写 ---
 
     # 问候语
-    async def get_greets(self) -> list[Greet]:
+    async def get_greets_id(self) -> list[GreetID]:
         await self._check_online()
-        return self._setting.greets
+        return self._setting.greets_id
 
 
 noteapi = NoteAPI()
