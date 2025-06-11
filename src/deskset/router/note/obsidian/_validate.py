@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import ClassVar
 
 from pydantic import BaseModel, field_validator
 from asyncer import asyncify
@@ -56,7 +57,7 @@ class Greet(BaseModel):
     open: str     # 开场白（例：早上好）
     content: str  # 问候内容（例：今天也是元气满满的一天！）
 
-    format: str = 'HHmm'  # 时间格式 HHmm
+    format: ClassVar[str] = 'HHmm'  # 时间格式 HHmm。ClassVar 让 Pydantic 正确识别类变量
 
     # 当前时间 HHmm
     @classmethod
