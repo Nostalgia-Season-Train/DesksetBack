@@ -64,6 +64,7 @@ app = FastAPI(lifespan=lifespan)
 
 
 # ==== FastAPI：中间件 ====
+from starlette.datastructures import Headers
 from starlette.responses import PlainTextResponse
 from starlette.types import ASGIApp, Receive, Scope, Send
 
@@ -77,11 +78,19 @@ class AllowOnly127001tMiddleware:
         if scope['type'] not in ('http', 'websocket'):
             return await self.app(scope, receive, send)
 
-        if scope['client'][0] == '127.0.0.1':
-            return await self.app(scope, receive, send)
-        else:
-            response = PlainTextResponse('仅允许本机访问', status_code=400)
+        # 限制只能本机（127.0.0.1）访问
+        if scope['client'][0] != '127.0.0.1':
+            response = PlainTextResponse('Access allowed only from 127.0.0.1', status_code=400)
             return await response(scope, receive, send)
+
+        # 解析标头
+        headers = Headers(scope=scope)
+
+        if headers.get('host', None) != f'{server_host}:{server_port}':
+            response = PlainTextResponse('Invalid host header', status_code=400)
+            return await response(scope, receive, send)
+
+        return await self.app(scope, receive, send)
 
 app.add_middleware(AllowOnly127001tMiddleware)
 
