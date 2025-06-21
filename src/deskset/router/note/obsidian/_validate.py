@@ -15,27 +15,27 @@ class Setting(BaseModel):
     password: str
 
     profile: Profile
-    greets_id: list[GreetID]  # 允许空数组
+    greets: list[Greet]  # 允许空数组
 
-    @field_validator('greets_id')
+    @field_validator('greets')
     @classmethod
-    def check_greets_id(cls, greets_id: list[GreetID]) -> list[GreetID]:
-        greets_id_filter: list[GreetID] = []
+    def check_greets(cls, greets: list[Greet]) -> list[Greet]:
+        greets_filter: list[Greet] = []
 
-        for greet_id in greets_id:
-            if len(greet_id.id) != 20:
+        for greet in greets:
+            if len(greet.id) != 20:
                 continue  # id 长度错误
             try:
-                arrow.get(greet_id.start, GreetID.format)
-                arrow.get(greet_id.end, GreetID.format)
+                arrow.get(greet.start, Greet.format)
+                arrow.get(greet.end, Greet.format)
             except arrow.ParserError:
                 continue  # 时间格式错误
             except ValueError:
                 continue  # 时间错误（比如 2500、1265 这种不可能的时间）
 
-            greets_id_filter.append(greet_id)
+            greets_filter.append(greet)
 
-        return greets_id_filter
+        return greets_filter
 
 # ID 标识符
   # 与其他模型组合以附加 id 属性
@@ -51,7 +51,7 @@ class Profile(BaseModel):
 # 问候语
 import arrow
 
-class Greet(BaseModel):
+class GreetRaw(BaseModel):
     start: str  # 开始时间 HHmm
     end: str    # 结束时间 HHmm
     open: str     # 开场白（例：早上好）
@@ -66,5 +66,5 @@ class Greet(BaseModel):
         current = await asyncify(now.format)(cls.format)
         return current
 
-class GreetID(Greet, ID):
+class Greet(GreetRaw, ID):
     pass

@@ -28,16 +28,16 @@ async def which_phase(start: int, end: int, current: int) -> Phase:
 from fastapi import APIRouter
 
 from ._noteapi import noteapi
-from ._validate import GreetID
+from ._validate import Greet
 
 router_greet = APIRouter(prefix='/greet')
 
 @router_greet.get('')
 async def greet():
-    greets = await noteapi.get_greets_id()
-    current = int(await GreetID.current())  # 现在时间
-    start_inrange_greets: list[GreetID] = []
-    end_greets: list[GreetID] = []
+    greets = await noteapi.get_greets()
+    current = int(await Greet.current())  # 现在时间
+    start_inrange_greets: list[Greet] = []
+    end_greets: list[Greet] = []
 
     for greet in greets:
         phase = await which_phase(int(greet.start), int(greet.end), current)
