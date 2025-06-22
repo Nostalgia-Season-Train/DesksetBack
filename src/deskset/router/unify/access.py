@@ -28,8 +28,11 @@ if DISABLE_ACCESS:
 
 
 class Access(object):
+    Max_Fail_Count: int = 30  # 最大认证失败次数，阻止密码爆破攻击
+
     def __init__(self) -> None:
         self._token: str = self._generate_token(config.username, config.password)
+        self.fail_count: int = 0
 
     def _generate_token(self, username: str, password: str) -> str:
         from datetime import datetime
@@ -56,6 +59,17 @@ class Access(object):
     def get_token(self) -> str:
         return self._token
 
+    def add_fail_time_sync(self):
+        self.fail_count += 1
+        if self.fail_count == self.Max_Fail_Count:
+            logging.critical(f'Access fail {self.Max_Fail_Count} times, lock server')
+
+    async def add_fail_time_async(self):
+        self.fail_count += 1
+        if self.fail_count == self.Max_Fail_Count:
+            from asyncer import asyncify
+            await asyncify(logging.critical)(f'Access fail {self.Max_Fail_Count} times, lock server')
+
 access = Access()
 
 if ACCESS_TOKEN is not None:
@@ -70,6 +84,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/v0/access/login')  # tokenUrl �
 
 def check_token(token: str = Depends(oauth2_scheme)) -> bool:  # Depends(oauth2_scheme) 拿取 request.token
     if token != access.token:
+        access.add_fail_time_sync()
         raise HTTPException(status_code=400, detail='无效密钥')
     return True
 

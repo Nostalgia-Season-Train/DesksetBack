@@ -72,6 +72,7 @@ async def login_in(
         return response.text
 
 from fastapi import WebSocket, WebSocketDisconnect, HTTPException
+from deskset.router.unify.access import access
 from ._noteapi import noteapi
 
 @router_obsidian_manager.websocket('/ws-event')
@@ -86,6 +87,7 @@ async def ws_event(websocket: WebSocket):
         return True
 
     if not await is_authorized(websocket.scope['subprotocols']):
+        await access.add_fail_time_async()
         raise HTTPException(status_code=400, detail='无效密钥')
     await websocket.accept('Authorization')  # 前后端都要有 Authorization 子协议，否则无法建立连接
 

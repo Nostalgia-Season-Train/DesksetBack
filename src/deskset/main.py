@@ -68,6 +68,8 @@ from starlette.datastructures import Headers
 from starlette.responses import PlainTextResponse
 from starlette.types import ASGIApp, Receive, Scope, Send
 
+from deskset.router.unify.access import access
+
 # 仅允许本机访问
   # 对 http 和 websocket 都生效
 class AllowOnly127001tMiddleware:
@@ -88,6 +90,11 @@ class AllowOnly127001tMiddleware:
 
         if headers.get('host', None) != f'{server_host}:{server_port}':
             response = PlainTextResponse('Invalid host header', status_code=400)
+            return await response(scope, receive, send)
+
+        # 服务器锁定
+        if access.fail_count >= access.Max_Fail_Count:
+            response = PlainTextResponse('Server Lock', status_code=400)
             return await response(scope, receive, send)
 
         return await self.app(scope, receive, send)
