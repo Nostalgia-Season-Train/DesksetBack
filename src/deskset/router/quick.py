@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from fastapi import Response
 
 import deskset.feature.quick as quick
@@ -47,3 +47,12 @@ def get_file_icon(req: DesksetReqFile):
     else:
         # 现在只能提取 exe 文件图标
         return Response(content=b'', media_type='image/x-icon')
+
+@router_quick.post('/win32/setting')  # 打开 Windows 设置
+def open_win32_setting(q: str = Query()):
+    from os import system
+
+    if q == 'display':          # 显示设置
+        system('start ms-settings:display')
+    if q == 'personalization':  # 个性化
+        system('start ms-settings:personalization')
