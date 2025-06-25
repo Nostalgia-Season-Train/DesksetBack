@@ -109,3 +109,37 @@ async def ws_event(websocket: WebSocket):
         pass
     finally:
         await noteapi.set_offline(address, token)
+
+# - [ ] 临时：RPC 测试
+from ._rpc import RpcClient
+
+class API:
+    _rpc: RpcClient | None
+
+    async def helloworld(self) -> str:
+        if self._rpc != None:
+            return await self._rpc.call_remote_procedure('helloworld', [])
+        else:
+            return 'RPC 没有上线'
+
+api = API()
+
+@router_obsidian_manager.websocket('/rpc')
+async def rpc(websocket: WebSocket):
+    await websocket.accept()
+
+    # 上线 > 轮询接收 > 下线
+    api._rpc = RpcClient(websocket)
+
+    try:
+        while True:
+            response = await websocket.receive_json()
+            await api._rpc.on_receive(response)
+    except WebSocketDisconnect:
+        pass
+
+    api._rpc = None
+
+@router_obsidian_manager.get('/helloworld')
+async def helloworld():
+    return await api.helloworld()
