@@ -42,7 +42,7 @@ shutil.copytree('./src/deskset', f'./{DIST}/site-packages/deskset')  # nuitka �
 # 编译 C/C++ 代码
 os.makedirs(f'./lib', exist_ok=True)  # 创建 lib 二进制库，否则 gcc 报错
 
-os.system('cd src/package_C/disk_active_time && build.bat')
+os.system('cd src-ffi/DiskActiveTime && build.bat')
 
 copy('lib')
 

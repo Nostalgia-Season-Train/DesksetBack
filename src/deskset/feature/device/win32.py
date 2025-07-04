@@ -4,7 +4,7 @@ import psutil
 # psutil 拿不到的信息
 import ctypes
 
-dll_disk_active_time = ctypes.windll.LoadLibrary('./lib/disk_active_time.dll')
+dll_disk_active_time = ctypes.windll.LoadLibrary('./lib/DiskActiveTime.dll')
 dll_disk_active_time.get.restype = ctypes.c_double
 
 

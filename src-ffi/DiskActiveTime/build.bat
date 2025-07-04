@@ -1,4 +1,4 @@
-gcc -fPIC -shared "./main.c" -o "../../../lib/disk_active_time.dll" -lpdh
+gcc -fPIC -shared "./main.c" -o "../../lib/DiskActiveTime.dll" -lpdh
 
 
 @REM === Test C Code ===
