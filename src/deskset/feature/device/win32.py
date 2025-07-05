@@ -1,11 +1,22 @@
 # ==== 依赖 ====
 import psutil
+from deskset.core.log import logging
 
 # psutil 拿不到的信息
 import ctypes
 
+ERROR_SUCCESS = 0
+
+class returnData(ctypes.Structure):
+    _fields_ = [
+        ('error', ctypes.c_ulong),
+        ('result', ctypes.c_double)
+    ]
+
 dll_disk_active_time = ctypes.windll.LoadLibrary('./lib/DiskActiveTime.dll')
-dll_disk_active_time.get.restype = ctypes.c_double
+dll_disk_active_time.get.restype = returnData
+dll_disk_active_time.start.restype = ctypes.c_ulong
+dll_disk_active_time.end.restype = ctypes.c_ulong
 
 
 
@@ -37,10 +48,19 @@ class Win32Device:
         self._loop.start()
 
     def __loop_refresh(self) -> None:
-        dll_disk_active_time.start()
+        # 初始化硬盘统计
+        disk_active_time_start_result = dll_disk_active_time.start()
 
+        if disk_active_time_start_result != ERROR_SUCCESS:
+            logging.error(f'DiskActiveTime.dll start fail, error code: 0x{disk_active_time_start_result:04X}')
+        else:
+            dll_disk_active_time.get()  # 刷掉第一次调用的错误
+
+        # 初始化网络统计
         self.__last_net = psutil.net_io_counters()
         self.__last_nettime = time()
+
+        # 轮询
         while True:
             sleep(self._interval)
 
@@ -56,7 +76,12 @@ class Win32Device:
               # 使用率 percent: float %
                 # 注 1：使用率 = 活动时间：单位时间内硬盘使用率，也就是 1s 内读写所用时间 / 1s
                 # 注 2：round(, 1) 与 psutil 百分比位数保持一致
-            self._realtime.disk['percent'] = round(dll_disk_active_time.get(), 1)
+            disk_active_time = dll_disk_active_time.get()
+
+            if disk_active_time.error != ERROR_SUCCESS:
+                logging.error(f'DiskActiveTime.dll get fail, error code: 0x{disk_active_time.error:04X}')
+            else:
+                self._realtime.disk['percent'] = round(disk_active_time.result, 1)
 
             # *** 网络 ***
               # 发送 sent: int Byte/s、接收 recv: int Byte/s
