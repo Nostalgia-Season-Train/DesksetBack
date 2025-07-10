@@ -188,8 +188,8 @@ from deskset.router.weather import router_weather
 app.include_router(router_weather)
 
 
-# ==== FastAPI Router：插件注册：/api 作为所有插件路由的根路径 ====
-from deskset.router.api import router_plugin_root
+# ==== FastAPI Router：插件注册：/plugin 作为所有插件路由的根路径 ====
+from deskset.router.plugin import router_plugin_root
 app.include_router(router_plugin_root)
 
 

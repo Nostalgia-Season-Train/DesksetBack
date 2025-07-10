@@ -1,7 +1,7 @@
 # 模块导入顺序：core、feature、presenter => 外部插件 => router.plugin
 
 # 获取插件
-# 作用：遍历 ./api 目录，找出并返回插件（一个文件夹对应一个插件）
+# 作用：遍历 ./plugins 目录，找出并返回插件（一个文件夹对应一个插件）
 from pathlib import Path
 from typing import TypedDict
 
@@ -13,7 +13,7 @@ class PluginType(TypedDict):
 def get_plugins() -> list[PluginType]:
     plugins: list[PluginType] = []
 
-    for folder in Path('./api').glob('*'):
+    for folder in Path('./plugins').glob('*'):
         if folder.is_dir():
             name = folder.name
             info = ''
@@ -54,7 +54,7 @@ def import_from_path(module_name: str, file_path: str) -> ModuleType:
 from fastapi import APIRouter, Depends
 from deskset.router.unify import check_token
 
-router_plugin_root = APIRouter(prefix='/api', dependencies=[Depends(check_token)])  # 所有插件路由的根路径
+router_plugin_root = APIRouter(prefix='/plugin', dependencies=[Depends(check_token)])  # 所有插件路由的根路径
 
 for plugin in get_plugins():
     # 插件名称
@@ -69,7 +69,7 @@ for plugin in get_plugins():
     init = plugin['init']
 
     url = '/' + name
-    url_tags = ['API: ' + name]
+    url_tags = ['Plugin: ' + name]
     router_plugin = APIRouter(prefix=url, tags=url_tags)
 
     module_name = 'deskset.plugin.' + name
