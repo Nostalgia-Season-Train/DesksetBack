@@ -21,7 +21,8 @@ Path('./logs').mkdir(exist_ok=True)    # 日志 core.log
 
 Path('./i18n').mkdir(exist_ok=True)  # 翻译 core.locale
 
-Path('./api').mkdir(exist_ok=True)  # 插件 router.api
+Path('./scripts').mkdir(exist_ok=True)  # 脚本 feature.quick.open
+Path('./plugins').mkdir(exist_ok=True)  # 插件 router.plugin
 
 
 # ==== 日志 ====

@@ -34,4 +34,6 @@ def open_recycle():
 # 执行 Python 脚本
 def execute_script(name: str):
     current_python = sys.executable  # 当前 Python 解释器路径
-    subprocess.Popen([current_python, f'./script/{name}.py'])  # - [ ] 需要错误检查
+    # - [ ] 改为 importlib 执行
+    # - [ ] 加入错误处理
+    subprocess.Popen([current_python, f'./scripts/{name}.py'])

@@ -46,9 +46,8 @@ os.system('cd src-ffi/DiskActiveTime && build.bat')
 
 copy('lib')
 
-# 复制 翻译文件、示例插件
+# 复制 翻译文件
 copy('i18n')
-copy('api')
 
 
 # ==== 压缩 ====
