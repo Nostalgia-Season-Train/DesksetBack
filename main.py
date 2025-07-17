@@ -19,6 +19,8 @@ if __name__ == '__main__':  # 保护程序入口点，避免热重载时，子�
     else:
         from deskset import main
         main()
+        # 注意！不会运行 main 之后的代码，因为 main 执行完时通过 sys.exit() 退出并返回退出码
+          # sys.exit() 作用：方便父进程 DesksetFront 捕获子进程 DesksetBack 意外结束的原因，比如端口占用
 
 
 # 注：如果报错，创建 .env 文件

@@ -196,8 +196,20 @@ app.include_router(router_plugin_root)
 
 # 启动服务器
 import uvicorn
+import sys
 
 def main():
-    uvicorn.run(app, host=server_host, port=server_port)
+    logging.info('==== all modules import completed, execute main function ====')
+
+    logging.info('run uvicorn server')
+    try:
+        uvicorn.run(app, host=server_host, port=server_port)
+    except SystemExit:  # 捕获 uvicorn 异常退出，以便日志记录 OSError 信息
+        logging.exception('uvicorn crash!')
+        logging.error('end uvicorn server with exception')  # logging.exception 重复打印 SystemExit 堆栈...
+        sys.exit(1)  # 退出码 1：异常退出
+
+    logging.info('end uvicorn server')
+    sys.exit(0)  # 退出码 0：正常退出
 
 # 在这个文件启用 uvicorn.run(reload=True) 会影响 vscode git 检查
