@@ -49,6 +49,9 @@ from deskset.feature.note import apscheduler as note_apscheduler
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # 信息传输：DesksetBack = 标准输出流 => DesksetFront
+    print(f'{{"url": "{server_host}:{server_port}", "token": "{access._token}"}}', flush=True)
+
     logging.info('start lifespan')
     note_apscheduler.start()  # 不用 paused=True 暂停，uvicorn.run 自然启停
     yield
@@ -203,7 +206,8 @@ def main():
 
     logging.info('run uvicorn server')
     try:
-        uvicorn.run(app, host=server_host, port=server_port)
+        # log_config=None & log_level='critical' 作用：日志从控制台改为输出到文件 + 日志级别 critical
+        uvicorn.run(app, host=server_host, port=server_port, log_config=None, log_level='critical')
     except SystemExit:  # 捕获 uvicorn 异常退出，以便日志记录 OSError 信息
         logging.exception('uvicorn crash!')
         logging.error('end uvicorn server with exception')  # logging.exception 重复打印 SystemExit 堆栈...
