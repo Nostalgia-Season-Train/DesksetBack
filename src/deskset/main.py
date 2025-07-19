@@ -64,7 +64,7 @@ async def lifespan(app: FastAPI):
 # 一个 CSRF 示例：<img src="http://127.0.0.1:8000/v0/device/cpu"></img>，可在其他 Electron 程序中访问本服务器接口
 from fastapi import FastAPI
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url=None)
 
 
 # ==== FastAPI：中间件 ====
@@ -156,6 +156,28 @@ def deskset_exception(request: Request, exc: Exception):
         status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
         content=str(exc)
     )
+
+
+# ==== FastAPI：离线 OpenAPI 文档 ====
+if DEVELOP_ENV:
+    from fastapi.openapi.docs import get_swagger_ui_html, get_swagger_ui_oauth2_redirect_html
+    from fastapi.staticfiles import StaticFiles
+
+    app.mount('/static', StaticFiles(directory='static'), name='static')
+
+    @app.get('/docs', include_in_schema=False)
+    async def custom_swagger_ui_html():
+        return get_swagger_ui_html(
+            openapi_url=app.openapi_url,  # type: ignore
+            title=app.title + ' - Swagger UI',
+            oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
+            swagger_js_url='/static/docs/swagger-ui-bundle.js',
+            swagger_css_url='/static/docs/swagger-ui.css'
+        )
+
+    @app.get(app.swagger_ui_oauth2_redirect_url, include_in_schema=False)  # type: ignore
+    async def swagger_ui_redirect():
+        return get_swagger_ui_oauth2_redirect_html()
 
 
 # ==== FastAPI Router：认证接口 ====

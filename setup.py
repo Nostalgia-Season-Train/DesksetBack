@@ -44,6 +44,9 @@ os.makedirs(f'./lib', exist_ok=True)  # 创建 lib 二进制库目录，否则 g
 os.system('cd src-ffi/DiskActiveTime && build.bat')  # 编译 C/C++ 代码
 copy('lib')
 
+# 打包 静态文件
+copy('static')
+
 # 打包 翻译
 copy('i18n')
 

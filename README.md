@@ -33,5 +33,6 @@ DesksetBack.exe -dev -no-access
 ```
 
 3、开发与测试
+- 服务器运行时，访问 http://127.0.0.1:6527/docs 查看交互式 API 文档，可以在此测试接口
 - 在 plugins/sample_plugin 中编辑代码
 - 热重载机制：服务器会自动监控文件变化，保存修改后无需重启程序即可生效
