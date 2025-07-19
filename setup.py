@@ -39,15 +39,16 @@ shutil.copytree('./.venv/Lib/site-packages', f'./{DIST}/site-packages')  # 直�
 # os.system(f'nuitka --module src/deskset --include-package=deskset --output-dir={DIST}/site-packages --remove-output')
 shutil.copytree('./src/deskset', f'./{DIST}/site-packages/deskset')  # nuitka 暂不支持 3.12.10...
 
-# 编译 C/C++ 代码
-os.makedirs(f'./lib', exist_ok=True)  # 创建 lib 二进制库，否则 gcc 报错
-
-os.system('cd src-ffi/DiskActiveTime && build.bat')
-
+# 打包 C/C++ 二进制库
+os.makedirs(f'./lib', exist_ok=True)  # 创建 lib 二进制库目录，否则 gcc 报错
+os.system('cd src-ffi/DiskActiveTime && build.bat')  # 编译 C/C++ 代码
 copy('lib')
 
-# 复制 翻译文件
+# 打包 翻译
 copy('i18n')
+
+# 打包 示例插件
+copy('sample_plugin')
 
 
 # ==== 压缩 ====
