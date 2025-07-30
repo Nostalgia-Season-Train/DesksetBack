@@ -1,15 +1,17 @@
 from __future__ import annotations
 from typing import Optional
 
-import json
+# 为了在 config 目录区分 DesksetBack 和 DesksetFront 配置
+import yaml  # DesksetBack 优先配置格式 yaml
+import json  # DesksetFront 优先配置格式 json
 
 from deskset.core.log import logging
 
-CONFIG_MAIN_PATH = './config/deskset.json'
+CONFIG_MAIN_PATH = './config/desksetback.yaml'
 CONFIG_MAIN_ENCODE = 'utf-8'
 
 
-# ==== 读取 config/deskset.json 中的配置 ====
+# ==== 读取 config/desksetback.yaml 中的配置 ====
   # - [ ] 需要换名 + 移至其他文件
 class Config(object):
     _instance: Optional[Config] = None
@@ -28,7 +30,7 @@ class Config(object):
         # 1、属性设为默认值
         # 2、读取，检查通过后修改属性
         # 3、写入，属性覆盖上一步无效配置
-        # 注意！不要添加跟配置无关的公有成员属性，此类依靠自身属性读取 json 配置
+        # 注意！不要添加跟配置无关的公有成员属性，此类依靠自身属性读取 yaml 配置
 
         # === 默认值 ===
         # 语言和编码
@@ -49,7 +51,7 @@ class Config(object):
         # === 读取 ===
         try:
             with open(CONFIG_MAIN_PATH, 'r', encoding=CONFIG_MAIN_ENCODE) as file:
-                data: dict = json.load(file)
+                data: dict = yaml.safe_load(file)
 
                 for attr_key, attr_value in list(self.__dict__.items()):  # list 创建副本后修改 self 属性
                     # 不是私有成员属性
@@ -73,7 +75,7 @@ class Config(object):
         except FileNotFoundError:
             logging.warning(f'{CONFIG_MAIN_PATH} not found')
             pass
-        except json.JSONDecodeError:
+        except yaml.YAMLError:
             logging.warning(f'{CONFIG_MAIN_PATH} decode failed')
             pass
 
@@ -82,7 +84,7 @@ class Config(object):
             data: dict = {
                 key.replace('_', '-'): value for key, value in self.__dict__.items() if not key.startswith('_')
             }
-            json.dump(data, file, ensure_ascii=False, indent=4)
+            yaml.dump(data, file, allow_unicode=True, sort_keys=False)
 
 
 config = Config()
@@ -103,8 +105,6 @@ if __name__ == '__main__':
     # 类型提示：class Conf: _confXXX: str（在类中注解）
 from pathlib import Path
 from typing import get_type_hints, get_args
-
-import yaml
 
 from deskset.core.standard import DesksetError
 
