@@ -11,53 +11,38 @@ CONFIG_MAIN_PATH = './config/desksetback.yaml'
 CONFIG_MAIN_ENCODE = 'utf-8'
 
 
-# ==== 读取 config/desksetback.yaml 中的配置 ====
-  # - [ ] 需要换名 + 移至其他文件
-class Config(object):
-    _instance: Optional[Config] = None
-
-    def __new__(cls) -> Config:
-        if cls._instance is None:
-            cls._instance = object.__new__(cls)
-        return cls._instance
-
+# ==== 读写 config/desksetback.yaml 中的配置 ====
+class Config:
     def __init__(self) -> None:
-        if not hasattr(self._instance, '_is_init'):
-            self._is_init = True
-            self._init_once()
-
-    def _init_once(self) -> None:
-        # 1、属性设为默认值
-        # 2、读取，检查通过后修改属性
-        # 3、写入，属性覆盖上一步无效配置
-        # 注意！不要添加跟配置无关的公有成员属性，此类依靠自身属性读取 yaml 配置
-
-        # === 默认值 ===
+        # --- 1、设置默认值 ---
         # 语言和编码
-        self.language: str = 'zh-cn'
-        self.encoding: str = 'utf-8'
+        self._confitem_language: str = 'zh-cn'
+        self._confitem_encoding: str = 'utf-8'
         # 端口
-        self.server_host: str = '127.0.0.1'
-        self.server_port: int = 6527
+        self._confitem_server_host: str = '127.0.0.1'
+        self._confitem_server_port: int = 6527
         # 用户和密码：self.username 和 self.password 每次都随机生成，读取配置文件成功再被覆盖
         import random
         import string
         letters_and_digits = string.ascii_letters + string.digits
-        self.username: str = 'deskset-user' + ''.join(random.choices(letters_and_digits, k=random.randint(5, 10)))
-        self.password: str = 'deskset-pswd' + ''.join(random.choices(letters_and_digits, k=random.randint(10, 20)))
+        self._confitem_username: str = 'deskset-user' + ''.join(random.choices(letters_and_digits, k=random.randint(5, 10)))
+        self._confitem_password: str = 'deskset-pswd' + ''.join(random.choices(letters_and_digits, k=random.randint(10, 20)))
 
-        # === 读取 ===
+        # --- 2、先读再写，覆盖无效配置项 ---
+        self._read_config_file()
+        self._write_config_file()
+
+    def _read_config_file(self) -> None:
         try:
             with open(CONFIG_MAIN_PATH, 'r', encoding=CONFIG_MAIN_ENCODE) as file:
                 data: dict = yaml.safe_load(file)
 
                 for attr_key, attr_value in list(self.__dict__.items()):  # list 创建副本后修改 self 属性
-                    # 不是私有成员属性
-                    if attr_key.startswith('_'):
+                    if not attr_key.startswith('_confitem_'):
                         continue
 
                     # 配置类型跟默认值一致
-                    config_key = attr_key.replace('_', '-')
+                    config_key = attr_key[10:].replace('_', '-')
                     config_type = type(attr_value)
                     if type(data.get(config_key)) != config_type:
                         continue
@@ -77,12 +62,36 @@ class Config(object):
             logging.warning(f'{CONFIG_MAIN_PATH} decode failed')
             pass
 
-        # === 写入 ===
+    def _write_config_file(self) -> None:
         with open(CONFIG_MAIN_PATH, 'w', encoding=CONFIG_MAIN_ENCODE) as file:
             data: dict = {
-                key.replace('_', '-'): value for key, value in self.__dict__.items() if not key.startswith('_')
+                key[10:].replace('_', '-'): value for key, value in self.__dict__.items() if key.startswith('_confitem_')
             }
             yaml.dump(data, file, allow_unicode=True, sort_keys=False)
+
+    @property
+    def language(self) -> str:
+        return self._confitem_language
+
+    @property
+    def encoding(self) -> str:
+        return self._confitem_encoding
+
+    @property
+    def server_host(self) -> str:
+        return self._confitem_server_host
+
+    @property
+    def server_port(self) -> int:
+        return self._confitem_server_port
+
+    @property
+    def username(self) -> str:
+        return self._confitem_username
+
+    @property
+    def password(self) -> str:
+        return self._confitem_password
 
 
 config = Config()
@@ -104,6 +113,8 @@ if __name__ == '__main__':
 from pathlib import Path
 from typing import get_type_hints, get_args
 
+# 这里存在循环引用 config < standard < locale < config
+  # 但是只要 config 在此之前定义，那就没有问题
 from deskset.core.standard import DesksetError
 
 READ_CONFFILE_ERROR = DesksetError(message='配置文件 {} 读取失败：{}！')
