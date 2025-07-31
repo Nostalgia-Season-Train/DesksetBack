@@ -108,13 +108,17 @@ async def ws_event(websocket: WebSocket):
     except WebSocketDisconnect:
         pass
     finally:
-        await noteapi.set_offline(address, token)
+        await noteapi.set_offline(address, token)  # type: ignore
 
 # - [ ] 临时：RPC 测试
 from ._rpc import RpcClient
+from deskset.router.unify.access import access
 
 class API:
     _rpc: RpcClient | None
+
+    def __init__(self) -> None:
+        self._rpc = None
 
     async def helloworld(self) -> str:
         if self._rpc != None:
@@ -126,7 +130,25 @@ api = API()
 
 @router_obsidian_manager.websocket('/rpc')
 async def rpc(websocket: WebSocket):
-    await websocket.accept()
+    async def is_authorized(subprotocols: list[str]):
+        if len(subprotocols) != 2:
+            return False
+        if subprotocols[0] != 'Authorization':
+            return False
+        if subprotocols[1] != f'bearer-{access.notetoken}':
+            return False
+        return True
+
+    # 检查 notetoken
+    if not await is_authorized(websocket.scope['subprotocols']):
+        await access.add_fail_time_async()
+        raise HTTPException(status_code=400, detail='Invalid notetoken')
+
+    # 检查重复连接
+    if not api._rpc == None:
+        raise HTTPException(status_code=400, detail='Another NoteAPI is online')
+
+    await websocket.accept('Authorization')  # 前后端都要有 Authorization 子协议，否则无法建立连接
 
     # 上线 > 轮询接收 > 下线
     api._rpc = RpcClient(websocket)

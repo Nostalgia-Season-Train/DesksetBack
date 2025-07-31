@@ -31,7 +31,15 @@ class Access(object):
     Max_Fail_Count: int = 30  # 最大认证失败次数，阻止密码爆破攻击
 
     def __init__(self) -> None:
+        # DesksetFront 访问所用 token
         self._token: str = self._generate_token(config.username, config.password)
+
+        # 笔记应用（Obsidian）通过 WebSocket 创建 RPC 连接所用 token
+        self._notetoken: str = self._generate_token(config.username, config.password)
+        while self._notetoken == self._token:
+            self._notetoken = self._generate_token(config.username, config.password)
+
+        # token、notetoken 验证失败次数
         self.fail_count: int = 0
 
     def _generate_token(self, username: str, password: str) -> str:
@@ -52,6 +60,11 @@ class Access(object):
     def token(self) -> str:
         # return self._token  # - [ ] 临时：不返回正确 token
         return 'use -token= instead'
+
+    # 零开销，可用于异步
+    @property
+    def notetoken(self) -> str:
+        return self._notetoken
 
     def set_token(self, token: str) -> None:
         self._token = token
@@ -82,7 +95,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/v0/access/login')  # tokenUrl 写全 URL
 
-def check_token(token: str = Depends(oauth2_scheme)) -> bool:  # Depends(oauth2_scheme) 拿取 request.token
+def check_token(token: str = Depends(oauth2_scheme)) -> bool:  # type: ignore # Depends(oauth2_scheme) 拿取 request.token
     if token != access.token:
         access.add_fail_time_sync()
         raise HTTPException(status_code=400, detail='无效密钥')
@@ -102,18 +115,15 @@ from fastapi import APIRouter
 
 router_access = APIRouter(prefix='/v0/access', tags=['认证'])
 
-@router_access.post('/login')
+@router_access.post('/note/login')
 def login(form: OAuth2PasswordRequestForm = Depends()):
     # 输入和输出：username、password，access_token、token_type 都不需要自己指定键名
     if form.username != config.username:
-        raise HTTPException(status_code=400, detail='无效用户')
+        raise HTTPException(status_code=400, detail='Invalid username')
     if form.password != config.password:
-        raise HTTPException(status_code=400, detail='无效密码')
+        raise HTTPException(status_code=400, detail='Invalid password')
 
-    return {
-        'access_token': access.token,
-        'token_type': 'bearer'
-    }
+    return access.notetoken
 
 @router_access.get('/user-info')
 def user_info(token: str = Depends(check_token)):

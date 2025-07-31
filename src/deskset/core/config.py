@@ -39,8 +39,6 @@ class Config(object):
         # 端口
         self.server_host: str = '127.0.0.1'
         self.server_port: int = 6527
-        self.noteapi_host: str = '127.0.0.1'
-        self.noteapi_port: int = 6528  # DesksetNoteAPI 插件端口
         # 用户和密码：self.username 和 self.password 每次都随机生成，读取配置文件成功再被覆盖
         import random
         import string
