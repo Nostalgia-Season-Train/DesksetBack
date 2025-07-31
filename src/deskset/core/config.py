@@ -62,12 +62,20 @@ class Config:
             logging.warning(f'{CONFIG_MAIN_PATH} decode failed')
             pass
 
-    def _write_config_file(self) -> None:
+    def _write_config_file(self, yaml_key: str | None = None, yaml_value: object | None = None) -> None:
         with open(CONFIG_MAIN_PATH, 'w', encoding=CONFIG_MAIN_ENCODE) as file:
             data: dict = {
                 key[10:].replace('_', '-'): value for key, value in self.__dict__.items() if key.startswith('_confitem_')
             }
-            yaml.dump(data, file, allow_unicode=True, sort_keys=False)
+            # 先写入文件，再修改属性
+            if yaml_key is not None and yaml_value is not None and data.get(yaml_key, None) is not None:
+                if type(data[yaml_key]) == type(yaml_value):
+                    data[yaml_key] = yaml_value
+                yaml.dump(data, file, allow_unicode=True, sort_keys=False)
+                setattr(self, '_confitem_' + yaml_key.replace('-', '_'), yaml_value)
+            # 直接写入文件
+            else:
+                yaml.dump(data, file, allow_unicode=True, sort_keys=False)
 
     @property
     def language(self) -> str:
@@ -89,9 +97,21 @@ class Config:
     def username(self) -> str:
         return self._confitem_username
 
+    @username.setter
+    def username(self, username: str) -> None:
+        if len(username) == 0:
+            raise ValueError('username cannot be empty string')
+        self._write_config_file('username', username)
+
     @property
     def password(self) -> str:
         return self._confitem_password
+
+    @password.setter
+    def password(self, password: str) -> None:
+        if len(password) == 0:
+            raise ValueError('password cannot be empty string')
+        self._write_config_file('password', password)
 
 
 config = Config()

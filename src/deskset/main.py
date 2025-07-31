@@ -192,6 +192,9 @@ if DEBUG_MODE:
 
 
 # ==== FastAPI Router：路由注册 ====
+from deskset.router.config import router_config
+app.include_router(router_config)
+
 from deskset.router.device import router_device
 app.include_router(router_device)
 
