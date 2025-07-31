@@ -112,7 +112,7 @@ READ_CONFFILE_ERROR = DesksetError(message='配置文件 {} 读取失败：{}！
 def write_conf_file(instance: object) -> None:
     if getattr(instance, '_confpath', None) is None:
         raise ValueError(f'_confpath not exist in {type(instance)} class')
-    relpath = Path('./config') / f'{instance._confpath}.yaml'
+    relpath = Path('./config') / f'{instance._confpath}.yaml'  # type: ignore
 
     items = {}  # 配置项
 
@@ -133,17 +133,17 @@ def write_conf_file(instance: object) -> None:
 def read_conf_file(instance: object) -> None:
     if getattr(instance, '_confpath', None) is None:
         raise ValueError(f'_confpath not exist in {type(instance)} class')
-    relpath = Path('./config') / f'{instance._confpath}.yaml'
+    relpath = Path('./config') / f'{instance._confpath}.yaml'  # type: ignore
 
     # 读取文件，异常由调用方处理
       # 可能异常：文件不存在 FileNotFoundError、yaml 解析失败 yaml.YAMLError、yaml 解析非字典 TypeError
     if not relpath.is_file():
-        raise READ_CONFFILE_ERROR.insert(relpath, '文件不存在')
+        raise READ_CONFFILE_ERROR.insert(str(relpath), '文件不存在')
     with open(relpath, 'r', encoding='utf-8') as file:
         try:
             items: dict = yaml.safe_load(file)
         except yaml.YAMLError:
-            raise READ_CONFFILE_ERROR.insert(relpath, 'YAML 解析失败')
+            raise READ_CONFFILE_ERROR.insert(str(relpath), 'YAML 解析失败')
 
         # 没解析成字典，也算异常
         if not isinstance(items, dict):
@@ -177,7 +177,7 @@ def read_conf_file(instance: object) -> None:
 def write_conf_file_abspath(instance: object, format: str = 'yaml') -> None:
     if getattr(instance, '_confabspath', None) is None:
         raise ValueError(f'_confabspath not exist in {type(instance)} class')
-    abspath = Path(instance._confabspath)
+    abspath = Path(instance._confabspath)  # type: ignore
 
     items = {}  # 配置项
 
@@ -201,27 +201,27 @@ def write_conf_file_abspath(instance: object, format: str = 'yaml') -> None:
 def read_conf_file_abspath(instance: object, format: str = 'yaml') -> None:
     if getattr(instance, '_confabspath', None) is None:
         raise ValueError(f'_confabspath not exist in {type(instance)} class')
-    abspath = Path(instance._confabspath)
+    abspath = Path(instance._confabspath)  # type: ignore
 
     # 读取文件，异常由调用方处理
       # 可能异常：文件不存在 FileNotFoundError、yaml 解析失败 yaml.YAMLError、yaml 解析非字典 TypeError
     if not abspath.is_file():
-        raise READ_CONFFILE_ERROR.insert(abspath, '文件不存在')
+        raise READ_CONFFILE_ERROR.insert(str(abspath), '文件不存在')
     with open(abspath, 'r', encoding='utf-8') as file:
         if format == 'yaml':
             try:
                 items: dict = yaml.safe_load(file)
             except yaml.YAMLError:
-                raise READ_CONFFILE_ERROR.insert(abspath, 'YAML 解析失败')
+                raise READ_CONFFILE_ERROR.insert(str(abspath), 'YAML 解析失败')
         if format == 'json':
             try:
                 items: dict = json.load(file)
             except json.JSONDecodeError:
-                raise READ_CONFFILE_ERROR.insert(abspath, 'JSON 解析失败')
+                raise READ_CONFFILE_ERROR.insert(str(abspath), 'JSON 解析失败')
 
         # 没解析成字典，也算异常
-        if not isinstance(items, dict):
-            raise READ_CONFFILE_ERROR.insert(abspath, '解析结果不是字典')
+        if not isinstance(items, dict):  # type: ignore 暂时不管...
+            raise READ_CONFFILE_ERROR.insert(str(abspath), '解析结果不是字典')
 
         # attr_value 作为配置项默认值
         for attr_key, attr_value in list(instance.__dict__.items()):
@@ -245,9 +245,9 @@ def read_conf_file_abspath(instance: object, format: str = 'yaml') -> None:
                     if type(None) in get_args(annotations.get(attr_key)):
                         setattr(instance, attr_key, '')
             elif value_type == type([]):  # 附：可以解析 list[dict] 类型
-                if len(value) != 0:
+                if len(value) != 0:  # type: ignore vscode pyright 无法间接推断 value 类型
                     setattr(instance, attr_key, value)
-                if len(value) == 0:  # 同上，包含 None 允许列表为空
+                if len(value) == 0:  # 同上，包含 None 允许列表为空  # type: ignore 同上
                     annotations = get_type_hints(type(instance))
                     if type(None) in get_args(annotations.get(attr_key)):
                         setattr(instance, attr_key, [])
