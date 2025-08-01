@@ -21,6 +21,7 @@ class Config:
         # 端口
         self._confitem_server_host: str = '127.0.0.1'
         self._confitem_server_port: int = 6527
+        self._runtime_server_port: int | None = None  # 如果 _confitem_server_port 变化，记录服务器当前运行端口
         # 用户和密码：self.username 和 self.password 每次都随机生成，读取配置文件成功再被覆盖
         import random
         import string
@@ -91,7 +92,19 @@ class Config:
 
     @property
     def server_port(self) -> int:
+        if self._runtime_server_port:
+            return self._runtime_server_port
         return self._confitem_server_port
+
+    @property
+    def server_port_in_yaml(self) -> int:
+        return self._confitem_server_port
+
+    @server_port.setter
+    def server_port(self, server_port: int) -> None:
+        if self._runtime_server_port is None:
+            self._runtime_server_port = self._confitem_server_port  # 第一次修改，记录当前端口
+        self._write_config_file('server-port', server_port)
 
     @property
     def username(self) -> str:

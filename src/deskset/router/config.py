@@ -13,6 +13,14 @@ router_config = APIRouter(
 from fastapi import Form
 from deskset.core.config import config
 
+@router_config.get('/server-port')
+def get_server_port():
+    return config.server_port_in_yaml
+
+@router_config.post('/server-port')
+def post_server_port(server_port: int = Form()):
+    config.server_port = server_port
+
 @router_config.get('/username')
 def get_username():
     return config.username

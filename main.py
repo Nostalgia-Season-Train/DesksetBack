@@ -15,7 +15,8 @@ if __name__ == '__main__':  # 保护程序入口点，避免热重载时，子�
         # 1、如果在 src/deskset/main.py 使用，必须手动刷新 vscode git 才会显示仓库变化
         # 2、用 deskset.main:app 而不是 src.deskset.main:app（触发循环引用）
         import uvicorn
-        uvicorn.run('deskset.main:app', host='127.0.0.1', port=6527, reload=True)
+        from deskset.core.config import config
+        uvicorn.run('deskset.main:app', host=config.server_host, port=config.server_port, reload=True)
     else:
         from deskset import main
         main()
