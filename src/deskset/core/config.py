@@ -148,6 +148,7 @@ from typing import get_type_hints, get_args
 
 # 这里存在循环引用 config < standard < locale < config
   # 但是只要 config 在此之前定义，那就没有问题
+# 2025/08/02：去掉 standard 对 locale 的导入，以上注释留作说明
 from deskset.core.standard import DesksetError
 
 READ_CONFFILE_ERROR = DesksetError(message='配置文件 {} 读取失败：{}！')

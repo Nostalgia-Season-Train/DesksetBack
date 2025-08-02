@@ -3,13 +3,12 @@ from dataclasses import dataclass
 from typing import Any
 
 from deskset.core.log import logging
-from deskset.core.locale import _t
 
 class DesksetError(Exception):
     def __init__(
             self,
             code:    int = 1,
-            message: str = _t('Failure'),
+            message: str = 'Fail',
             data:    Any = None
         ) -> None:
         self.code    = code
@@ -28,7 +27,7 @@ class DesksetError(Exception):
             return DesksetError(code=self.code, message=self.message.format(*args))
         except IndexError:  # 翻译前或翻译后，当占位符 {} 多于参数 args 时报错
             log_error = ''
-            log_error += _t('DesksetError Dynamic Message! Extra Placeholder: ')
+            log_error += 'DesksetError Dynamic Message! Extra Placeholder: '
             log_error += f'\'{self.message}\'.format{args}'
             logging.error(log_error)
 
