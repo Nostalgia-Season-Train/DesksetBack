@@ -111,12 +111,23 @@ if DISABLE_ACCESS:
 
 
 # router 路由
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 
 router_access = APIRouter(prefix='/v0/access', tags=['认证'])
 
 @router_access.post('/note/login')
-def login(form: OAuth2PasswordRequestForm = Depends()):
+def login(
+    request: Request,
+    form: OAuth2PasswordRequestForm = Depends()
+):
+    # Sec- 开头的请求标头，无法从浏览器发出
+      # 目标：确保请求来源 NodeJS，而不是浏览器
+      # 原因：阻止恶意网站利用浏览器进行 CSRF 攻击（私有网络攻击）
+    if request.headers.get('Sec-Deskset-NoteAPI', None) != 'PNA':
+        from deskset.core.log import logging
+        logging.error(f'Website {request.headers.get('Referer')} try to login Deskset')
+        raise HTTPException(status_code=400, detail='Invalid client')
+
     # 输入和输出：username、password，access_token、token_type 都不需要自己指定键名
     if form.username != config.username:
         raise HTTPException(status_code=400, detail='Invalid username')
