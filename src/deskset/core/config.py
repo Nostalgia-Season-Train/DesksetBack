@@ -118,15 +118,19 @@ class Config:
 
     @classmethod
     def _write_config_file(cls, instance: object, yaml_key: str | None = None, yaml_value: object | None = None) -> None:
+        # 检查属性
+          # 注：如果在写入文件时抛出异常，会使文件内容清空
+        if yaml_key is not None and yaml_value is not None:
+            getattr(instance, 'check_' + yaml_key.replace('-', '_'))(yaml_value)
+
         with open(CONFIG_MAIN_PATH, 'w', encoding=CONFIG_MAIN_ENCODE) as file:
             data: dict = {
                 key.replace('_', '-'): value for key, value in instance.__dict__.items() if not key.startswith('_')
             }
             # 先写入文件，再修改属性
             if yaml_key is not None and yaml_value is not None and data.get(yaml_key, None) is not None:
-                getattr(instance, 'check_' + yaml_key.replace('-', '_'))(yaml_value)  # 1、检查属性
-                yaml.dump(data, file, allow_unicode=True, sort_keys=False)            # 2、写入文件
-                setattr(instance, yaml_key.replace('-', '_'), yaml_value)             # 3、修改属性；预期行为：触发二次检查
+                yaml.dump(data, file, allow_unicode=True, sort_keys=False)  # 写入文件
+                setattr(instance, yaml_key.replace('-', '_'), yaml_value)   # 修改属性；预期行为：触发二次检查
             # 直接写入文件
             else:
                 yaml.dump(data, file, allow_unicode=True, sort_keys=False)
