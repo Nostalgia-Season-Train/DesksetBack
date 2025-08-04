@@ -22,9 +22,9 @@ def get_server_port():
 def post_server_port(server_port: int = Form()):
     try:
         config.server_port = server_port
-        return config.server_port
+        return config.server_port_in_yaml
     except ValueError as value_error:
-        raise DesksetError(message=str(value_error), data=config.server_port)
+        raise DesksetError(message=str(value_error), data=config.server_port_in_yaml)
 
 @router_config.get('/username')
 def get_username():
