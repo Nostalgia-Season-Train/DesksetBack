@@ -12,50 +12,103 @@ CONFIG_MAIN_ENCODE = 'utf-8'
 
 
 # ==== 读写 config/desksetback.yaml 中的配置 ====
+from pydantic import BaseModel, field_validator
+from random import choices, randint
+
+VALID_LANGUAGE_LIST = ['zh-cn', 'en']
+VALID_ENCODING_LIST = ['utf-8']
+
+CHARS_STR = 'abcdefghijklmnopqrstuvwxyz' + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' + '0123456789' + '-'
+
+
+class ValidateConfig(BaseModel, validate_assignment=True):
+    language: str = 'zh-cn'  # 语言
+    encoding: str = 'utf-8'  # 编码
+
+    server_host: str = '127.0.0.1'  # 监听 IP
+    server_port: int = 6527         # 监听端口
+
+    # username 和 password 每次都随机生成，读取配置文件成功再被覆盖
+    username: str = 'deskset-user' + ''.join(choices(CHARS_STR, k=randint(5, 10)))   # 用户名
+    password: str = 'deskset-pswd' + ''.join(choices(CHARS_STR, k=randint(10, 20)))  # 密码
+
+    @field_validator('language')
+    @classmethod
+    def check_language(cls, v: str) -> str:
+        if v not in VALID_LANGUAGE_LIST:
+            raise ValueError(f'invalid language. Pydantic info:')
+        return v
+
+    @field_validator('encoding')
+    @classmethod
+    def check_encoding(cls, v: str) -> str:
+        if v not in VALID_ENCODING_LIST:
+            raise ValueError(f'invalid encoding. Pydantic info:')
+        return v
+
+    @field_validator('server_host')
+    @classmethod
+    def check_server_host(cls, v: str) -> str:
+        if v != '127.0.0.1':  # 后续改进，暂时限定仅监听 127.0.0.1 IP
+            raise ValueError(f'invalid server-host. Pydantic info:')
+        return v
+
+    @field_validator('server_port')
+    @classmethod
+    def check_server_port(cls, v: int) -> int:
+        if not (1024 <= v <= 65535):
+            raise ValueError(f'invalid server-port. Pydantic info:')
+        return v
+
+    @field_validator('username')
+    @classmethod
+    def check_username(cls, v: str) -> str:
+        if not all(char in CHARS_STR for char in v):
+            raise ValueError(f'invalid username. Pydantic info:')
+        return v
+
+    @field_validator('password')
+    @classmethod
+    def check_password(cls, v: str) -> str:
+        if not all(char in CHARS_STR for char in v):
+            raise ValueError(f'invalid password. Pydantic info:')
+        return v
+
+
 class Config:
     def __init__(self) -> None:
         # --- 1、设置默认值 ---
-        # 语言和编码
-        self._confitem_language: str = 'zh-cn'
-        self._confitem_encoding: str = 'utf-8'
-        # 端口
-        self._confitem_server_host: str = '127.0.0.1'
-        self._confitem_server_port: int = 6527
+        self._validate_config = ValidateConfig()
+
         self._runtime_server_port: int | None = None  # 如果 _confitem_server_port 变化，记录服务器当前运行端口
-        # 用户和密码：self.username 和 self.password 每次都随机生成，读取配置文件成功再被覆盖
-        import random
-        import string
-        letters_and_digits = string.ascii_letters + string.digits
-        self._confitem_username: str = 'deskset-user' + ''.join(random.choices(letters_and_digits, k=random.randint(5, 10)))
-        self._confitem_password: str = 'deskset-pswd' + ''.join(random.choices(letters_and_digits, k=random.randint(10, 20)))
 
         # --- 2、先读再写，覆盖无效配置项 ---
-        self._read_config_file()
-        self._write_config_file()
+        self._read_config_file(self._validate_config)
+        self._write_config_file(self._validate_config)
 
-    def _read_config_file(self) -> None:
+    @classmethod
+    def _read_config_file(cls, instance: object) -> None:
         try:
             with open(CONFIG_MAIN_PATH, 'r', encoding=CONFIG_MAIN_ENCODE) as file:
                 data: dict = yaml.safe_load(file)
 
-                for attr_key, attr_value in list(self.__dict__.items()):  # list 创建副本后修改 self 属性
-                    if not attr_key.startswith('_confitem_'):
+                for attr_key, attr_value in list(instance.__dict__.items()):  # list 创建副本后修改 self 属性
+                    # 不是私有成员属性
+                    if attr_key.startswith('_'):
                         continue
 
                     # 配置类型跟默认值一致
-                    config_key = attr_key[10:].replace('_', '-')
+                    config_key = attr_key.replace('_', '-')
                     config_type = type(attr_value)
                     if type(data.get(config_key)) != config_type:
                         continue
 
                     # 修改属性。注：setattr 不会丢掉类型检查
                     value = data.get(config_key)
-                    if   config_type == type(10000):
-                        setattr(self, attr_key, value)
-                    elif config_type == type('str') and value != '':
-                        setattr(self, attr_key, value)
-                    else:
-                        pass
+                    try:
+                        setattr(instance, attr_key, value)
+                    except ValueError as value_error:
+                        logging.warning(f'Validate \'{config_key}\' fail on reading {CONFIG_MAIN_PATH[2:]}\n{value_error}')
         except FileNotFoundError:
             logging.warning(f'{CONFIG_MAIN_PATH} not found')
             pass
@@ -63,68 +116,68 @@ class Config:
             logging.warning(f'{CONFIG_MAIN_PATH} decode failed')
             pass
 
-    def _write_config_file(self, yaml_key: str | None = None, yaml_value: object | None = None) -> None:
+    @classmethod
+    def _write_config_file(cls, instance: object, yaml_key: str | None = None, yaml_value: object | None = None) -> None:
         with open(CONFIG_MAIN_PATH, 'w', encoding=CONFIG_MAIN_ENCODE) as file:
             data: dict = {
-                key[10:].replace('_', '-'): value for key, value in self.__dict__.items() if key.startswith('_confitem_')
+                key.replace('_', '-'): value for key, value in instance.__dict__.items() if not key.startswith('_')
             }
             # 先写入文件，再修改属性
             if yaml_key is not None and yaml_value is not None and data.get(yaml_key, None) is not None:
-                if type(data[yaml_key]) == type(yaml_value):
-                    data[yaml_key] = yaml_value
-                yaml.dump(data, file, allow_unicode=True, sort_keys=False)
-                setattr(self, '_confitem_' + yaml_key.replace('-', '_'), yaml_value)
+                getattr(instance, 'check_' + yaml_key.replace('-', '_'))(yaml_value)  # 1、检查属性
+                yaml.dump(data, file, allow_unicode=True, sort_keys=False)            # 2、写入文件
+                setattr(instance, yaml_key.replace('-', '_'), yaml_value)             # 3、修改属性；预期行为：触发二次检查
             # 直接写入文件
             else:
                 yaml.dump(data, file, allow_unicode=True, sort_keys=False)
 
     @property
     def language(self) -> str:
-        return self._confitem_language
+        return self._validate_config.language
 
     @property
     def encoding(self) -> str:
-        return self._confitem_encoding
+        return self._validate_config.encoding
 
     @property
     def server_host(self) -> str:
-        return self._confitem_server_host
+        return self._validate_config.server_host
 
     @property
     def server_port(self) -> int:
         if self._runtime_server_port:
             return self._runtime_server_port
-        return self._confitem_server_port
+        return self._validate_config.server_port
 
     @property
     def server_port_in_yaml(self) -> int:
-        return self._confitem_server_port
+        return self._validate_config.server_port
 
     @server_port.setter
     def server_port(self, server_port: int) -> None:
         if self._runtime_server_port is None:
-            self._runtime_server_port = self._confitem_server_port  # 第一次修改，记录当前端口
-        self._write_config_file('server-port', server_port)
+            self._runtime_server_port = self._validate_config.server_port  # 第一次修改，记录当前端口
+        self._write_config_file(self._validate_config, 'server-port', server_port)
 
     @property
     def username(self) -> str:
-        return self._confitem_username
+        return self._validate_config.username
 
     @username.setter
     def username(self, username: str) -> None:
         if len(username) == 0:
             raise ValueError('username cannot be empty string')
-        self._write_config_file('username', username)
+        self._write_config_file(self._validate_config, 'username', username)
 
     @property
     def password(self) -> str:
-        return self._confitem_password
+        return self._validate_config.password
 
     @password.setter
     def password(self, password: str) -> None:
         if len(password) == 0:
             raise ValueError('password cannot be empty string')
-        self._write_config_file('password', password)
+        self._write_config_file(self._validate_config, 'password', password)
 
 
 config = Config()
