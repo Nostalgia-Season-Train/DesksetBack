@@ -91,6 +91,9 @@ class Config:
         try:
             with open(CONFIG_MAIN_PATH, 'r', encoding=CONFIG_MAIN_ENCODE) as file:
                 data: dict = yaml.safe_load(file)
+                # 配置文件内容为空，读取的 data 为 None
+                if data is None:
+                    raise TypeError('data is None')
 
                 for attr_key, attr_value in list(instance.__dict__.items()):  # list 创建副本后修改 self 属性
                     # 不是私有成员属性
@@ -111,6 +114,9 @@ class Config:
                         logging.warning(f'Validate \'{config_key}\' fail on reading {CONFIG_MAIN_PATH[2:]}\n{value_error}')
         except FileNotFoundError:
             logging.warning(f'{CONFIG_MAIN_PATH} not found')
+            pass
+        except TypeError as type_error:
+            logging.warning(f'{CONFIG_MAIN_PATH} is empty. Error message: {type_error}')
             pass
         except yaml.YAMLError:
             logging.warning(f'{CONFIG_MAIN_PATH} decode failed')
