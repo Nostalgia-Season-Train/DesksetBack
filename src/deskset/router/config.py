@@ -22,6 +22,7 @@ def get_server_port():
 def post_server_port(server_port: int = Form()):
     try:
         config.server_port = server_port
+        return config.server_port
     except ValueError as value_error:
         raise DesksetError(message=str(value_error), data=config.server_port)
 
@@ -33,6 +34,7 @@ def get_username():
 def post_username(username: str = Form()):
     try:
         config.username = username
+        return config.username
     except ValueError as value_error:
         raise DesksetError(message=str(value_error), data=config.username)
 
@@ -44,5 +46,6 @@ def get_password():
 def post_password(password: str = Form()):
     try:
         config.password = password
+        return config.password
     except ValueError as value_error:
         raise DesksetError(message=str(value_error), data=config.password)
