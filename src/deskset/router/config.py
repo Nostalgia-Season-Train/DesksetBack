@@ -12,6 +12,7 @@ router_config = APIRouter(
 # ==== URL ====
 from fastapi import Form
 from deskset.core.config import config
+from deskset.core.standard import DesksetError
 
 @router_config.get('/server-port')
 def get_server_port():
@@ -19,7 +20,10 @@ def get_server_port():
 
 @router_config.post('/server-port')
 def post_server_port(server_port: int = Form()):
-    config.server_port = server_port
+    try:
+        config.server_port = server_port
+    except ValueError as value_error:
+        raise DesksetError(message=str(value_error), data=config.server_port)
 
 @router_config.get('/username')
 def get_username():
@@ -27,7 +31,10 @@ def get_username():
 
 @router_config.post('/username')
 def post_username(username: str = Form()):
-    config.username = username
+    try:
+        config.username = username
+    except ValueError as value_error:
+        raise DesksetError(message=str(value_error), data=config.username)
 
 @router_config.get('/password')
 def get_password():
@@ -35,4 +42,7 @@ def get_password():
 
 @router_config.post('/password')
 def post_password(password: str = Form()):
-    config.password = password
+    try:
+        config.password = password
+    except ValueError as value_error:
+        raise DesksetError(message=str(value_error), data=config.password)

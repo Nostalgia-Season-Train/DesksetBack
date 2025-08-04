@@ -36,42 +36,42 @@ class ValidateConfig(BaseModel, validate_assignment=True):
     @classmethod
     def check_language(cls, v: str) -> str:
         if v not in VALID_LANGUAGE_LIST:
-            raise ValueError(f'invalid language. Pydantic info:')
+            raise ValueError(f'Invalid language\nvalid choice = {VALID_LANGUAGE_LIST}')
         return v
 
     @field_validator('encoding')
     @classmethod
     def check_encoding(cls, v: str) -> str:
         if v not in VALID_ENCODING_LIST:
-            raise ValueError(f'invalid encoding. Pydantic info:')
+            raise ValueError(f'Invalid encoding\nvalid choice = {VALID_ENCODING_LIST}')
         return v
 
     @field_validator('server_host')
     @classmethod
     def check_server_host(cls, v: str) -> str:
         if v != '127.0.0.1':  # 后续改进，暂时限定仅监听 127.0.0.1 IP
-            raise ValueError(f'invalid server-host. Pydantic info:')
+            raise ValueError(f'Invalid server-host\nonly allow 127.0.0.1')
         return v
 
     @field_validator('server_port')
     @classmethod
     def check_server_port(cls, v: int) -> int:
         if not (1024 <= v <= 65535):
-            raise ValueError(f'invalid server-port. Pydantic info:')
+            raise ValueError(f'Invalid server-port.\nport between 1024 ~ 65535')
         return v
 
     @field_validator('username')
     @classmethod
     def check_username(cls, v: str) -> str:
         if not all(char in CHARS_STR for char in v):
-            raise ValueError(f'invalid username. Pydantic info:')
+            raise ValueError(f'Invalid username.\nchar range = \'{CHARS_STR}\'')
         return v
 
     @field_validator('password')
     @classmethod
     def check_password(cls, v: str) -> str:
         if not all(char in CHARS_STR for char in v):
-            raise ValueError(f'invalid password. Pydantic info:')
+            raise ValueError(f'Invalid password.\nchar range = \'{CHARS_STR}\'')
         return v
 
 
