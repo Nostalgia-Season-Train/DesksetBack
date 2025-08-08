@@ -113,6 +113,7 @@ async def ws_event(websocket: WebSocket):
 # - [ ] 临时：RPC 测试
 from ._rpc import RpcClient
 from deskset.router.unify.access import access
+from deskset.core.standard import DesksetError
 
 class API:
     _rpc: RpcClient | None
@@ -120,11 +121,10 @@ class API:
     def __init__(self) -> None:
         self._rpc = None
 
-    async def helloworld(self) -> str:
-        if self._rpc != None:
-            return await self._rpc.call_remote_procedure('helloworld', [])
-        else:
-            return 'RPC 没有上线'
+    async def get_note_number(self) -> int:
+        if self._rpc is None:
+            raise DesksetError(message='Obsidian not online')
+        return await self._rpc.call_remote_procedure('get_note_number', [])
 
 api = API()
 
@@ -161,7 +161,3 @@ async def rpc(websocket: WebSocket):
         pass
 
     api._rpc = None
-
-@router_obsidian_manager.get('/helloworld')
-async def helloworld():
-    return await api.helloworld()
