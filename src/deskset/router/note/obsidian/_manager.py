@@ -128,6 +128,12 @@ class API:
         self._rpc = None
         self._event_active_leaf_change = Event()
 
+    # --- 状态 ---
+    @property
+    def is_offline(self) -> bool:
+        return self._rpc is None
+
+    # --- 事件 ---
     # 例：接收 active-leaf-change 触发 self._event_active_leaf_change 事件
     async def trigger_event(self, response: dict) -> None:
         name = response.get('event', None)
@@ -143,10 +149,30 @@ class API:
         self_event.set()
         self_event.clear()
 
+    async def trigger_all_event(self) -> None:
+        for attr_key, attr_value in list(self.__dict__.items()):
+            if not attr_key.startswith('_event_'):
+                continue
+            if not isinstance(attr_value, Event):
+                continue
+            attr_value.set()
+            attr_value.clear()
+
+    async def event_active_leaf_change(self):
+        if self._rpc is None:
+            return  # 没有上线，不等待
+        return await self._event_active_leaf_change.wait()
+
+    # --- RPC ---
     async def get_note_number(self) -> int:
         if self._rpc is None:
             raise DesksetError(message='Obsidian not online')
         return await self._rpc.call_remote_procedure('get_note_number', [])
+
+    async def get_active_file(self) -> str:
+        if self._rpc is None:
+            raise DesksetError(message='Obsidian not online')
+        return await self._rpc.call_remote_procedure('get_active_file', [])
 
 api = API()
 
@@ -186,3 +212,8 @@ async def rpc(websocket: WebSocket):
         pass
 
     api._rpc = None
+    # 断开 Websocket 连接 + api._rpc = None 之后，触发所有事件
+      # 代替 event_offline 下线事件
+      # 这样就不需要 asyncio.wait 和 asyncio.create_task 同时监听两个事件
+      # 只等 event_{name} 触发后，判断一次 is_offline 状态即可下线
+    await api.trigger_all_event()
