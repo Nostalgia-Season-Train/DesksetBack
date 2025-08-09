@@ -111,15 +111,37 @@ async def ws_event(websocket: WebSocket):
         await noteapi.set_offline(address, token)  # type: ignore
 
 # - [ ] 临时：RPC 测试
-from ._rpc import RpcClient
-from deskset.router.unify.access import access
+from asyncio import Event
+from asyncer import asyncify
+
+from deskset.core.log import logging
 from deskset.core.standard import DesksetError
+from deskset.router.unify.access import access
+
+from ._rpc import RpcClient
 
 class API:
     _rpc: RpcClient | None
+    _event_active_leaf_change: Event
 
     def __init__(self) -> None:
         self._rpc = None
+        self._event_active_leaf_change = Event()
+
+    # 例：接收 active-leaf-change 触发 self._event_active_leaf_change 事件
+    async def trigger_event(self, response: dict) -> None:
+        name = response.get('event', None)
+        if not isinstance(name, str):
+            await asyncify(logging.error)(f'Receive Obsidian event: non-string name {name!r}')
+            return
+
+        self_name = f'_event_{name.replace('-', '_')}'
+        self_event = self.__dict__.get(self_name)
+        if not isinstance(self_event, Event):
+            await asyncify(logging.error)(f'Receive Obsidian event: self.{self_name} not a Event {self_event!r}')
+            return
+        self_event.set()
+        self_event.clear()
 
     async def get_note_number(self) -> int:
         if self._rpc is None:
@@ -156,7 +178,10 @@ async def rpc(websocket: WebSocket):
     try:
         while True:
             response = await websocket.receive_json()
-            await api._rpc.on_receive(response)
+            if response.get('datetime'):  # 单向事件：Obsidian > Deskset
+                await api.trigger_event(response)
+            if response.get('id'):        # RPC 调用：Deskset > Obsidian > Deskset
+                await api._rpc.on_receive(response)
     except WebSocketDisconnect:
         pass
 
