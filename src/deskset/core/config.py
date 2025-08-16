@@ -80,6 +80,7 @@ class Config:
         # --- 1、设置默认值 ---
         self._validate_config = ValidateConfig()
 
+        self._runtime_language: str | None = None
         self._runtime_server_port: int | None = None  # 如果 _confitem_server_port 变化，记录服务器当前运行端口
 
         # --- 2、先读再写，覆盖无效配置项 ---
@@ -143,7 +144,19 @@ class Config:
 
     @property
     def language(self) -> str:
+        if self._runtime_language:
+            return self._runtime_language
         return self._validate_config.language
+
+    @property
+    def language_in_yaml(self) -> str:
+        return self._validate_config.language
+
+    @language.setter
+    def language(self, language: str) -> None:
+        if self._runtime_language is None:
+            self._runtime_language = self._validate_config.language
+        self._write_config_file(self._validate_config, 'language', language)
 
     @property
     def encoding(self) -> str:

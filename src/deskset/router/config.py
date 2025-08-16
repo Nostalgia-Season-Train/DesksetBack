@@ -14,6 +14,18 @@ from fastapi import Form
 from deskset.core.config import config
 from deskset.core.standard import DesksetError
 
+@router_config.get('/language')
+def get_language():
+    return config.language_in_yaml
+
+@router_config.post('/language')
+def post_language(language: str = Form()):
+    try:
+        config.language = language
+        return config.language_in_yaml
+    except ValueError as value_error:
+        raise DesksetError(message=str(value_error), data=config.language_in_yaml)
+
 @router_config.get('/server-port')
 def get_server_port():
     return config.server_port_in_yaml
