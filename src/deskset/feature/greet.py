@@ -1,6 +1,8 @@
 from datetime import datetime
 import random
 
+from deskset.core.locale import _t
+
 
 class Greet:
     _instance = None
@@ -18,14 +20,14 @@ class Greet:
     def greet_simple(self):
         current_hour = datetime.now().hour
         # 数组偏移 0 是开场白，偏移 1 开始是内容
-        morning   = ["早上好",
-                     "今天也是元气满满的一天！"]
-        afternoon = ["下午好",
-                     "一杯绿茶如何？"]
-        evening   = ["晚上好",
-                     "是时候休息了"]
-        midnight  = ["夜深了",
-                     "忘记工作，睡觉去吧~"]
+        morning   = [_t('早上好'),
+                     _t('今天也是元气满满的一天！')]
+        afternoon = [_t('下午好'),
+                     _t('一杯绿茶如何？')]
+        evening   = [_t('晚上好'),
+                     _t('是时候休息了')]
+        midnight  = [_t('夜深了'),
+                     _t('忘记工作，睡觉去吧~')]
 
         # 开场白（早中晚）
         def greet_open():

@@ -24,3 +24,16 @@ Diary Not Found:            无此日记！
 Diary Already Exist:        日记已经存在！
 Cant Find Nor Create Trash: 不能找到或创建回收站！
 Incorrect Date Format:      日期格式错误！
+
+
+# ==== 问候语 ====
+
+# feature/greet
+早上好: 早上好
+今天也是元气满满的一天！: 今天也是元气满满的一天！
+下午好: 下午好
+一杯绿茶如何？: 一杯绿茶如何？
+晚上好: 晚上好
+是时候休息了: 是时候休息了
+夜深了: 夜深了
+忘记工作，睡觉去吧~: 忘记工作，睡觉去吧~
