@@ -96,7 +96,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/v0/access/login')  # tokenUrl 写全 URL
 
 def check_token(token: str = Depends(oauth2_scheme)) -> bool:  # type: ignore # Depends(oauth2_scheme) 拿取 request.token
-    if token != access.token:
+    if token != access._token:  # access.token 暂时不可用
         access.add_fail_time_sync()
         raise HTTPException(status_code=400, detail='无效密钥')
     return True
