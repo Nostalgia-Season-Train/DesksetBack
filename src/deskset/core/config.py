@@ -10,6 +10,10 @@ from deskset.core.log import logging
 CONFIG_MAIN_PATH = './config/desksetback.yaml'
 CONFIG_MAIN_ENCODE = 'utf-8'
 
+from locale import getdefaultlocale
+lang, _ = getdefaultlocale()
+DEFAULT_LANGUAGE = 'zh-cn' if lang is not None and lang.startswith('zh') else 'en'
+
 
 # ==== 读写 config/desksetback.yaml 中的配置 ====
 from pydantic import BaseModel, field_validator
@@ -22,7 +26,7 @@ CHARS_STR = 'abcdefghijklmnopqrstuvwxyz' + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' + '01234
 
 
 class ValidateConfig(BaseModel, validate_assignment=True):
-    language: str = 'zh-cn'  # 语言
+    language: str = DEFAULT_LANGUAGE  # 语言
     encoding: str = 'utf-8'  # 编码
 
     server_host: str = '127.0.0.1'  # 监听 IP
