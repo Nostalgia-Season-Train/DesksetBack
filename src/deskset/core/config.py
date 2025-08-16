@@ -136,8 +136,9 @@ class Config:
             }
             # 先写入文件，再修改属性
             if yaml_key is not None and yaml_value is not None and data.get(yaml_key, None) is not None:
+                data[yaml_key] = yaml_value                                 # 修改 data 属性，新值更新旧值
                 yaml.dump(data, file, allow_unicode=True, sort_keys=False)  # 写入文件
-                setattr(instance, yaml_key.replace('-', '_'), yaml_value)   # 修改属性；预期行为：触发二次检查
+                setattr(instance, yaml_key.replace('-', '_'), yaml_value)   # 修改 instance 属性；预期行为：触发二次检查
             # 直接写入文件
             else:
                 yaml.dump(data, file, allow_unicode=True, sort_keys=False)
