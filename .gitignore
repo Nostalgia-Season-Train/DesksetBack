@@ -10,6 +10,9 @@
 # 忽略 SDK
 sdk/
 
+# 忽略演练场
+static/playground
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
