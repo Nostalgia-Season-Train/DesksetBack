@@ -163,12 +163,14 @@ def deskset_exception(request: Request, exc: Exception):
     )
 
 
-# ==== FastAPI：离线 OpenAPI 文档 ====
+# ==== FastAPI：离线 OpenAPI 文档和演练场 ====
 if DEVELOP_ENV:
-    from fastapi.openapi.docs import get_swagger_ui_html, get_swagger_ui_oauth2_redirect_html
     from fastapi.staticfiles import StaticFiles
 
     app.mount('/static', StaticFiles(directory='static'), name='static')
+
+    # OpenAPI 文档
+    from fastapi.openapi.docs import get_swagger_ui_html, get_swagger_ui_oauth2_redirect_html
 
     @app.get('/docs', include_in_schema=False)
     async def custom_swagger_ui_html():
@@ -183,6 +185,15 @@ if DEVELOP_ENV:
     @app.get(app.swagger_ui_oauth2_redirect_url, include_in_schema=False)  # type: ignore
     async def swagger_ui_redirect():
         return get_swagger_ui_oauth2_redirect_html()
+
+    # 演练场
+    from fastapi.responses import Response
+
+    @app.get('/playground', include_in_schema=False)
+    async def playground_html():
+        with open('static/playground/index.html', 'r', encoding='utf-8') as file:
+            content = file.read()
+        return Response(content=content, media_type='text/html')
 
 
 # ==== FastAPI Router：认证接口 ====
