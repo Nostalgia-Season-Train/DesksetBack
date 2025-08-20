@@ -115,13 +115,18 @@ if DEVELOP_ENV:  # 开发时有 Vite Server 需要添加 CORS
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=['http://localhost:1420', 'app://obsidian.md'],
+        allow_origins=[
+            'http://localhost:1420',   # 开发环境：Vite 服务器
+            'http://tauri.localhost',  # 生产环境：Tauri 自定义协议
+            'app://obsidian.md',       # Obsidian
+            'http://localhost:5173'    # 数字桌搭演练场 DesksetPlayground
+        ],
         allow_credentials=True,
         allow_methods=['*'],
         allow_headers=['*'],
     )
 
-    logging.info(f'Add http://localhost:1420, app://obsidian.md to CORS')
+    logging.info(f'Add http://localhost:1420, http://tauri.localhost, app://obsidian.md, http://localhost:5173 to CORS')
 
 if not DEVELOP_ENV:  # Tauri 构建后用 http://tauri.localhost 通信...
     from fastapi.middleware.cors import CORSMiddleware
