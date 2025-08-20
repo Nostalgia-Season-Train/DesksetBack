@@ -110,7 +110,7 @@ class Win32Device:
     # --- 间隔访问：调用一次，读取一次 ---
 
     # （硬盘）分区信息
-    def partitions(self) -> list[dict]:
+    def partitions(self, is_gb=True) -> list[dict]:
         partitions = []
 
         for partition in psutil.disk_partitions():
@@ -121,6 +121,27 @@ class Win32Device:
                 'free': partition_usage.free,
                 'percent': partition_usage.percent
             })
+
+        # 硬盘可用/已用大小单位从 byte 转换为 gb
+          # js 不适合对这种大数字进行科学运算...
+        def byte_to_gb(num):
+            num = (num >> 20) / 1024
+
+            if  100 <= num:
+                num = str(int(num))
+            elif 10 <= num < 100:
+                num = int(num * 10) / 10
+                num = f'{num:.1f}'
+            else:
+                num = int(num * 100) / 100
+                num = f'{num:.2f}'
+
+            return num
+
+        if is_gb:
+            for partition in partitions:
+                partition['total'] = byte_to_gb(partition['total'])
+                partition['free'] = byte_to_gb(partition['free'])
 
         return partitions
 
