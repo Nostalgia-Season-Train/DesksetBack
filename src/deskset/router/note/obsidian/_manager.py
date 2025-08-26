@@ -206,6 +206,18 @@ class API:
             raise DesksetError(message='Obsidian not online')
         return await self._rpc.call_remote_procedure('suggest_by_switcher', [query])
 
+
+    # ==== 日记 ====
+    async def read_today_diary(self):
+        if self._rpc is None:
+            raise DesksetError(message='Obsidian not online')
+        return await self._rpc.call_remote_procedure('read_today_diary', [])
+
+    async def read_diary(self, dayid: str):
+        if self._rpc is None:
+            raise DesksetError(message='Obsidian not online')
+        return await self._rpc.call_remote_procedure('read_diary', [dayid])
+
 api = API()
 
 @router_obsidian_manager.websocket('/rpc')
