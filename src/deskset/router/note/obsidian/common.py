@@ -8,6 +8,9 @@ router_common = APIRouter(prefix='/common')
 @router_common.get('/active-file')
 async def get_active_file():
     async def stream():
+        # 检查是否上线，流式响应无法处理 DesksetError
+        if noteapi.is_offline:
+            return
         # 初始化
         yield await noteapi.get_active_file()
         # 轮询等待 active-leaf-change 事件
