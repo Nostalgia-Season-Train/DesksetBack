@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import TypedDict
+
 from pathlib import Path
 
 from deskset.feature.note.obsidian import *
@@ -168,6 +171,25 @@ class API:
         if self._rpc is None:
             raise DesksetError(message='Obsidian not online')
         return await self._rpc.call_remote_procedure('get_note_number', [])
+
+    async def get_attachment_number(self) -> int:
+        if self._rpc is None:
+            raise DesksetError(message='Obsidian not online')
+        return await self._rpc.call_remote_procedure('get_attachment_number', [])
+
+    async def get_useday_number(self) -> int:
+        if self._rpc is None:
+            raise DesksetError(message='Obsidian not online')
+        return await self._rpc.call_remote_procedure('get_useday_number', [])
+
+    class Heat(TypedDict):
+        date: str
+        number: int
+
+    async def get_heatmap(self, weeknum: int) -> list[API.Heat]:
+        if self._rpc is None:
+            raise DesksetError(message='Obsidian not online')
+        return await self._rpc.call_remote_procedure('get_heatmap', [weeknum])
 
     async def get_active_file(self) -> str:
         if self._rpc is None:
