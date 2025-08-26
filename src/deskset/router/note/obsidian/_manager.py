@@ -196,6 +196,16 @@ class API:
             raise DesksetError(message='Obsidian not online')
         return await self._rpc.call_remote_procedure('get_active_file', [])
 
+    class SuggestFile(TypedDict):
+        name: str  # 文件主名
+        type: str  # 文件扩展名
+        path: str  # 文件相对仓库的路径
+
+    async def suggest_by_switcher(self, query: str) -> list[API.SuggestFile]:
+        if self._rpc is None:
+            raise DesksetError(message='Obsidian not online')
+        return await self._rpc.call_remote_procedure('suggest_by_switcher', [query])
+
 api = API()
 
 @router_obsidian_manager.websocket('/rpc')
