@@ -217,6 +217,9 @@ app.include_router(router_device)
 from deskset.router.note import router_note
 app.include_router(router_note)
 
+from deskset.router.profile import router_profile
+app.include_router(router_profile)
+
 from deskset.router.greet import router_greet
 app.include_router(router_greet)
 
