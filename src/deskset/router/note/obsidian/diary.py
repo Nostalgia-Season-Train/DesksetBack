@@ -20,8 +20,7 @@ async def today_tasks():
 async def read_day(date: DesksetReqDateDay = Depends()):
     return await api.read_diary(date.day)
 
-# 读取某月中的日记（日期格式：YYYYMM）
+# 列出某月中的日记（日期格式：YYYYMM）
 @router_diary.get('/read-month/{month}')
 async def read_month(date: DesksetReqDateMonth = Depends()):
-    diarys = (await noteapi.get(f'/diary/read-month/{date.month}')).json()
-    return diarys
+    return await api.list_diarys_in_a_month(date.month)
