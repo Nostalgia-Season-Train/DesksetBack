@@ -22,3 +22,7 @@ async def get_active_file():
         return
 
     return StreamingResponse(stream(), media_type='text/plain')
+
+@router_common.get('/open-vault')
+async def open_vault():
+    return await noteapi.open_vault()

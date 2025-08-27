@@ -223,6 +223,13 @@ class API:
             raise DesksetError(message='Obsidian not online')
         return await self._rpc.call_remote_procedure('list_diarys_in_a_month', [monthid])
 
+
+    # ==== Obsidian 窗口 ====
+    async def open_vault(self):
+        if self._rpc is None:
+            raise DesksetError(message='Obsidian not online')
+        return await self._rpc.call_remote_procedure('open_vault', [])
+
 api = API()
 
 @router_obsidian_manager.websocket('/rpc')
