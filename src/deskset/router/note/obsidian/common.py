@@ -26,3 +26,7 @@ async def get_active_file():
 @router_common.get('/open-vault')
 async def open_vault():
     return await noteapi.open_vault()
+
+@router_common.get('/open-in-obsidian')
+async def open_in_obsidian(path: str = Query()):
+    return await noteapi.open_in_obsidian(path)
