@@ -35,3 +35,7 @@ class Filter(BaseModel):
 @router_stats.post('/filter-frontmatter')
 async def filter_frontmatter(filters: list[Filter]):
     return await noteapi.filter_frontmatter([filter.model_dump() for filter in filters])  # type: ignore
+
+@router_stats.post('/filter-frontmatter-number')
+async def filter_frontmatter_number(filters: list[Filter]):
+    return await noteapi.filter_frontmatter_number([filter.model_dump() for filter in filters])  # type: ignore
