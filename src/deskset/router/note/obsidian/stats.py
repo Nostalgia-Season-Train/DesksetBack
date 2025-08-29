@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel
 from deskset.router.unify import DesksetReqNumberInt
 from ._manager import api as noteapi
 
@@ -20,3 +21,17 @@ async def useday_number():
 async def heatmap(req: DesksetReqNumberInt = Depends()):
     weeknum = req.num  # 统计范围：前 weeknum 周 + 本周
     return await noteapi.get_heatmap(weeknum)
+
+# - [ ] 临时，后面转移到新路由
+class Filter(BaseModel):
+    type: str = 'contains'  # 比较类型：is、startsWith、endsWith、contains、isEmpty
+    isInvert: bool = False  # 是否取反比较结果
+    frontmatterKey: str     # 要比较的属性
+    compareValue: str       # 要比较的值
+
+# 注 1：filters 若为空数组返回 所有笔记
+# 注 2：frontmatterKey 若为空字符串，该次 filter 返回 false
+# 注 3：type 若不为上述五种类型，该次 filter 返回 false
+@router_stats.post('/filter-frontmatter')
+async def filter_frontmatter(filters: list[Filter]):
+    return await noteapi.filter_frontmatter([filter.model_dump() for filter in filters])  # type: ignore

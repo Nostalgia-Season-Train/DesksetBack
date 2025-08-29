@@ -235,6 +235,19 @@ class API:
             raise DesksetError(message='Obsidian not online')
         return await self._rpc.call_remote_procedure('open_in_obsidian', [path])
 
+
+    # ==== 数据分析 ====
+    class Filter(TypedDict):
+        type: str
+        isInvert: bool
+        frontmatterKey: str
+        compareValue: str
+
+    async def filter_frontmatter(self, filters: list[API.Filter]):
+        if self._rpc is None:
+            raise DesksetError(message='Obsidian not online')
+        return await self._rpc.call_remote_procedure('filter_frontmatter', [filters])
+
 api = API()
 
 @router_obsidian_manager.websocket('/rpc')
