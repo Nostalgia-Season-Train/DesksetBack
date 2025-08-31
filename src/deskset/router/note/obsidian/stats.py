@@ -29,17 +29,18 @@ class Filter(BaseModel):
     frontmatterKey: str     # 要比较的属性
     compareValue: str       # 要比较的值
 
-# 注：OpenAPI 会误将 FilterList 识别为 str，实际工作正常
-class FilterList(RootModel[list['Filter | FilterList']]):
-    pass
+# 注：OpenAPI 会误将 filters 中的 FilterGroup 识别为 str，实际工作正常
+class FilterGroup(BaseModel):
+    match: str
+    filters: list['Filter | FilterGroup']
 
 # 注 1：filters 若为空数组返回 所有笔记
 # 注 2：frontmatterKey 若为空字符串，该次 filter 返回 false
 # 注 3：type 若不为上述五种类型，该次 filter 返回 false
 @router_stats.post('/filter-frontmatter')
-async def filter_frontmatter(filters: FilterList):
-    return await noteapi.filter_frontmatter(filters.model_dump())  # type: ignore
+async def filter_frontmatter(filter_group: FilterGroup):
+    return await noteapi.filter_frontmatter(filter_group.model_dump())  # type: ignore
 
 @router_stats.post('/filter-frontmatter-number')
-async def filter_frontmatter_number(filters: FilterList):
-    return await noteapi.filter_frontmatter_number(filters.model_dump())  # type: ignore
+async def filter_frontmatter_number(filter_group: FilterGroup):
+    return await noteapi.filter_frontmatter_number(filter_group.model_dump())  # type: ignore

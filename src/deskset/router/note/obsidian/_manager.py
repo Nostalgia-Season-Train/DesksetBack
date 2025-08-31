@@ -237,21 +237,15 @@ class API:
 
 
     # ==== 数据分析 ====
-    class Filter(TypedDict):
-        type: str
-        isInvert: bool
-        frontmatterKey: str
-        compareValue: str
-
-    async def filter_frontmatter(self, filters: list[API.Filter]):
+    async def filter_frontmatter(self, filter_group: object):
         if self._rpc is None:
             raise DesksetError(message='Obsidian not online')
-        return await self._rpc.call_remote_procedure('filter_frontmatter', [filters])
+        return await self._rpc.call_remote_procedure('filter_frontmatter', [filter_group])
 
-    async def filter_frontmatter_number(self, filters: list[API.Filter]):
+    async def filter_frontmatter_number(self, filter_group: object):
         if self._rpc is None:
             raise DesksetError(message='Obsidian not online')
-        return await self._rpc.call_remote_procedure('filter_frontmatter_number', [filters])
+        return await self._rpc.call_remote_procedure('filter_frontmatter_number', [filter_group])
 
 api = API()
 
