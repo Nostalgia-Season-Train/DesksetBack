@@ -290,3 +290,35 @@ async def rpc(websocket: WebSocket):
       # 这样就不需要 asyncio.wait 和 asyncio.create_task 同时监听两个事件
       # 只等 event_{name} 触发后，判断一次 is_offline 状态即可下线
     await api.trigger_all_event()
+
+
+# ==== 登录 ====
+  # - [ ] 改进：连接步骤 = http 登录 + websocket 上线/下线
+    # 1、http 访问 login：身份认证和初始信息，生成本次 wstoken 及 { wstoken: 初始信息 }
+    # 2、websocket 访问 rpc：检查 wstoken 后取回初始信息，创建 RpcClient(ws, init)
+from fastapi import Request, Depends
+from fastapi.security import OAuth2PasswordRequestForm
+from deskset.router.unify.access import router_access
+
+@router_access.post('/note/obsidian/login')
+def login(
+    request: Request,
+    form: OAuth2PasswordRequestForm = Depends()
+):
+    # Sec- 开头的请求标头，无法从浏览器发出
+      # 目标：确保请求来源 NodeJS，而不是浏览器
+      # 原因：阻止恶意网站利用浏览器进行 CSRF 攻击（私有网络攻击）
+    if request.headers.get('Sec-Deskset-NoteAPI', None) != 'PNA':
+        from deskset.core.log import logging
+        logging.error(f'Website {request.headers.get('Referer')} try to login Deskset')
+        raise HTTPException(status_code=400, detail='Invalid client')
+
+    # 输入和输出：username、password，access_token、token_type 都不需要自己指定键名
+    if form.username != config.username:
+        raise HTTPException(status_code=400, detail='Invalid username')
+    if form.password != config.password:
+        raise HTTPException(status_code=400, detail='Invalid password')
+    if not api._rpc is None:
+        raise HTTPException(status_code=400, detail='Another NoteAPI is online')
+
+    return access.notetoken

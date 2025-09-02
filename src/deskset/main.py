@@ -196,11 +196,6 @@ if DEVELOP_ENV:
         return Response(content=content, media_type='text/html')
 
 
-# ==== FastAPI Router：认证接口 ====
-from deskset.router.unify import router_access
-app.include_router(router_access)
-
-
 # ==== FastAPI Router：调试接口 ====
 if DEBUG_MODE:
     from deskset.router.debug import router_debug
@@ -239,6 +234,12 @@ app.include_router(router_weather)
 # ==== FastAPI Router：插件注册：/plugin 作为所有插件路由的根路径 ====
 from deskset.router.plugin import router_plugin_root
 app.include_router(router_plugin_root)
+
+
+# ==== FastAPI Router：认证接口 ====
+  # 移到末尾注册，方便其他模块在 router_access 上挂载 REST 端点
+from deskset.router.unify import router_access
+app.include_router(router_access)
 
 
 # 启动服务器
