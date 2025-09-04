@@ -12,17 +12,16 @@ router_profile = APIRouter(
 # ==== REST API ====
 from fastapi import Form
 from deskset.core.standard import DesksetError
-from deskset.feature.profile import profile, save_profile
+from deskset.feature.profile import profile
 
 @router_profile.get('')
 def get():
-    return profile.model_dump()
+    return profile.conf()
 
 @router_profile.post('/name')
 def post_name(name: str = Form()):
     try:
         profile.name = name
-        save_profile()
         return profile.name
     except ValueError as value_error:
         raise DesksetError(message=str(value_error), data=profile.name)
@@ -31,7 +30,6 @@ def post_name(name: str = Form()):
 def post_bio(bio: str = Form()):
     try:
         profile.bio = bio
-        save_profile()
         return profile.bio
     except ValueError as value_error:
         raise DesksetError(message=str(value_error), data=profile.bio)
