@@ -23,6 +23,8 @@ def post_name(name: str = Form()):
     try:
         profile.name = name
         return profile.name
+    except TypeError as type_error:
+        raise DesksetError(message=str(type_error), data=profile.name)
     except ValueError as value_error:
         raise DesksetError(message=str(value_error), data=profile.name)
 
@@ -31,5 +33,7 @@ def post_bio(bio: str = Form()):
     try:
         profile.bio = bio
         return profile.bio
+    except TypeError as type_error:
+        raise DesksetError(message=str(type_error), data=profile.bio)
     except ValueError as value_error:
         raise DesksetError(message=str(value_error), data=profile.bio)

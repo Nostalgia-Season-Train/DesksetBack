@@ -49,7 +49,7 @@ class ConfProfile:
                 continue
             key = self.__attr_key_to_key(attr_key)
             value = conf.get(key)
-            try:  # error 级错误，跳过校验失败的配置项，继续循环
+            try:  # error 级问题，跳过校验失败的配置项，继续循环
                 setattr(self, key, value)
             except TypeError as type_error:
                 logging.error(type_error)
