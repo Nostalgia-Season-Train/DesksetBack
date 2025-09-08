@@ -39,8 +39,12 @@ class FilterGroup(BaseModel):
 # 注 3：type 若不为上述五种类型，该次 filter 返回 false
 @router_stats.post('/filter-frontmatter')
 async def filter_frontmatter(filter_group: FilterGroup):
-    return await noteapi.filter_frontmatter(filter_group.model_dump())  # type: ignore
+    return await noteapi.filter_frontmatter(filter_group.model_dump())
 
 @router_stats.post('/filter-frontmatter-number')
 async def filter_frontmatter_number(filter_group: FilterGroup):
-    return await noteapi.filter_frontmatter_number(filter_group.model_dump())  # type: ignore
+    return await noteapi.filter_frontmatter_number(filter_group.model_dump())
+
+@router_stats.post('/filter-and-random-open-in-obsidian')
+async def filter_and_random_open_in_obsidian(filter_group: FilterGroup):
+    return await noteapi.filter_and_random_open_in_obsidian(filter_group.model_dump())

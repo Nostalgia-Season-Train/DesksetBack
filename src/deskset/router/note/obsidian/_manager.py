@@ -247,6 +247,11 @@ class API:
             raise DesksetError(message='Obsidian not online')
         return await self._rpc.call_remote_procedure('filter_frontmatter_number', [filter_group])
 
+    async def filter_and_random_open_in_obsidian(self, filter_group: object):
+        if self._rpc is None:
+            raise DesksetError(message='Obsidian not online')
+        return await self._rpc.call_remote_procedure('filter_and_random_open_in_obsidian', [filter_group])
+
 api = API()
 
 @router_obsidian_manager.websocket('/rpc')
