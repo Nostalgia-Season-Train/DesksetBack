@@ -119,7 +119,7 @@ from asyncer import asyncify
 
 from deskset.core.log import logging
 from deskset.core.standard import DesksetError
-from deskset.router.unify.access import access
+from deskset.router.unify.access import access, router_access
 
 from ._rpc import RpcClient
 
@@ -254,7 +254,9 @@ class API:
 
 api = API()
 
-@router_obsidian_manager.websocket('/rpc')
+# router_obsidian_manager 注入 check_token 引发以下异常
+  # OAuth2PasswordBearer.__call__() missing 1 required positional argument: 'request'
+@router_access.websocket('/note/obsidian/rpc')
 async def rpc(websocket: WebSocket):
     async def is_authorized(subprotocols: list[str]):
         if len(subprotocols) != 2:
