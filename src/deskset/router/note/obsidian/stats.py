@@ -27,7 +27,7 @@ class Filter(BaseModel):
     type: str = 'contains'  # 比较类型：is、startsWith、endsWith、contains、isEmpty
     isInvert: bool = False  # 是否取反比较结果
     propertyKey: str        # 要比较的属性
-    compareValue: str       # 要比较的值
+    compareValue: str | int # 要比较的值
 
 # 注：OpenAPI 会误将 filters 中的 FilterGroup 识别为 str，实际工作正常
 class FilterGroup(BaseModel):
