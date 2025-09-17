@@ -33,10 +33,23 @@ class Win32Device:
     @dataclass
     class Realtime:
         def __init__(self) -> None:
-            self.cpu: dict[str, float] = { 'percent': 0.0 }
-            self.ram: dict[str, float] = { 'percent': 0.0 }
+            self.cpu: dict[str, int | float] = {
+                'percent': 0.0,  # CPU 利用率：类型 float，单位 %
+                'freq': 0.0,     # CPU 频率：类型 float，单位 GHz
+                'count': 0,      # CPU（物理）核心数：类型 int，单位 个
+            }
+            self.ram: dict[str, int | float] = {
+                'percent': 0.0,  # 内存占用率：类型 float，单位 %
+                'used': 0.0,     # 已用内存：类型 float，单位 GB
+                'total': 0,      # 总内存：类型 int，单位 GB
+            }
             self.disk: dict[str, float] = { 'percent': 0.0 }
             self.network: dict[str, int] = { 'sent': 0, 'recv': 0 }
+
+            # 获取 CPU 核心数
+            cpu_count = psutil.cpu_count(logical=False)
+            if cpu_count is not None:
+                self.cpu['count'] = cpu_count
 
     def __init__(self, interval: float = 1.0) -> None:
         self._realtime = Win32Device.Realtime()
@@ -65,12 +78,13 @@ class Win32Device:
             sleep(self._interval)
 
             # *** 芯片 ***
-              # 利用率 percent: float %
             self._realtime.cpu['percent'] = psutil.cpu_percent(interval=0)
 
             # *** 内存 ***
-              # 占用率 percent: float %
-            self._realtime.ram['percent'] = psutil.virtual_memory().percent
+            virtual_memory = psutil.virtual_memory()
+            self._realtime.ram['percent'] = virtual_memory.percent
+            self._realtime.ram['used'] = round((virtual_memory.used >> 28) / 4 * 10) / 10  # 保留一位小数
+            self._realtime.ram['total'] = round((virtual_memory.total >> 28) / 4)  # 计算取整，消去保留内存影响，得到实际物理内存
 
             # *** 硬盘 ***
               # 使用率 percent: float %
