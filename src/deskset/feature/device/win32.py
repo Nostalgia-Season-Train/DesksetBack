@@ -9,8 +9,10 @@ ERROR_SUCCESS = 0
 
 class returnData(ctypes.Structure):
     _fields_ = [
-        ('error', ctypes.c_ulong),
-        ('result', ctypes.c_double)
+        ('errorDiskTime', ctypes.c_ulong),
+        ('resultDiskTime', ctypes.c_double),
+        ('errorCpuFreq', ctypes.c_ulong),
+        ('resultCpuFreq', ctypes.c_double),  # CpuFreq * CPU-最大频率 = CPU-当前频率
     ]
 
 dll_disk_active_time = ctypes.windll.LoadLibrary('./lib/DiskActiveTime.dll')
@@ -77,8 +79,15 @@ class Win32Device:
         while True:
             sleep(self._interval)
 
+            # *** 性能计数器 ***
+            disk_active_time = dll_disk_active_time.get()
+
             # *** 芯片 ***
             self._realtime.cpu['percent'] = psutil.cpu_percent(interval=0)
+            if disk_active_time.errorCpuFreq != ERROR_SUCCESS:
+                logging.error(f'CpuFreq get fail, error code: 0x{disk_active_time.errorCpuFreq:04X}')
+            else:
+                self._realtime.cpu['freq'] = round(disk_active_time.resultCpuFreq * psutil.cpu_freq().max, 2)
 
             # *** 内存 ***
             virtual_memory = psutil.virtual_memory()
@@ -90,12 +99,10 @@ class Win32Device:
               # 使用率 percent: float %
                 # 注 1：使用率 = 活动时间：单位时间内硬盘使用率，也就是 1s 内读写所用时间 / 1s
                 # 注 2：round(, 1) 与 psutil 百分比位数保持一致
-            disk_active_time = dll_disk_active_time.get()
-
-            if disk_active_time.error != ERROR_SUCCESS:
-                logging.error(f'DiskActiveTime.dll get fail, error code: 0x{disk_active_time.error:04X}')
+            if disk_active_time.errorDiskTime != ERROR_SUCCESS:
+                logging.error(f'DiskTime get fail, error code: 0x{disk_active_time.errorDiskTime:04X}')
             else:
-                self._realtime.disk['percent'] = round(disk_active_time.result, 1)
+                self._realtime.disk['percent'] = round(disk_active_time.resultDiskTime, 1)
 
             # *** 网络 ***
               # 发送 sent: int Byte/s、接收 recv: int Byte/s
