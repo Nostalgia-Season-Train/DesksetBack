@@ -149,13 +149,11 @@ class Win32Device:
             num = (num >> 20) / 1024
 
             if  100 <= num:
-                num = str(int(num))
+                num = int(num)
             elif 10 <= num < 100:
                 num = int(num * 10) / 10
-                num = f'{num:.1f}'
             else:
                 num = int(num * 100) / 100
-                num = f'{num:.2f}'
 
             return num
 
