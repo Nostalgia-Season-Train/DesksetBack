@@ -3,34 +3,6 @@ from typing import TypedDict
 
 from pathlib import Path
 
-from deskset.feature.note.obsidian import *
-
-class Manager(ConfVaultObserver):
-    def __init__(self, conf_vault: ConfVault) -> None:
-        conf_vault.attach(self)
-        self.refresh(conf_vault)
-
-    def update(self, conf_vault: ConfVault) -> None:
-        self.refresh(conf_vault)
-
-    def refresh(self, conf_vault: ConfVault) -> None:
-        vault_path = conf_vault.path
-        if not (Path(vault_path) / '.obsidian').is_dir():
-            self.is_init = False
-            return
-        self.is_init = True
-        self._vault_path = vault_path
-        self.conf_noteapi = ConfNoteAPI(self._vault_path)
-        self.conf_profile = ConfProfile(self._vault_path)
-
-    @property
-    def vault(self) -> str:
-        return self._vault_path
-
-conf_vault = ConfVault()
-manager = Manager(conf_vault)
-
-
 from fastapi import APIRouter, Form
 from fastapi.responses import StreamingResponse
 from deskset.router.unify import DesksetRepJSON
