@@ -17,73 +17,9 @@ from httpx import AsyncClient
 from deskset.core.config import config
 from deskset.router.unify.access import access
 
-# - [ ] 等待封装进 manager
-wstoken = access._generate_token('username', 'password')
-
-@router_obsidian_manager.post('/login-in')
-async def login_in(
-    address: str = Form('127.0.0.1:6528'),
-    username: str = Form('noteapi-user'),
-    password: str = Form('noteapi-pswd')
-):
-    async with AsyncClient() as client:
-        response = await client.post(
-            url=f'http://{address}/unify/login-in',
-            headers={
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            data={
-                'username': username,
-                'password': password,
-                'backaddress': f'{config.server_host}:{config.server_port}',
-                'backtoken': wstoken
-            }
-        )
-
-        if response.status_code != 200:
-            from deskset.core.standard import DesksetError
-            raise DesksetError(message=response.text)
-
-        return response.text
-
 from fastapi import WebSocket, WebSocketDisconnect, HTTPException
 from deskset.router.unify.access import access
 from ._noteapi import noteapi
-
-@router_obsidian_manager.websocket('/ws-event')
-async def ws_event(websocket: WebSocket):
-    async def is_authorized(subprotocols: list[str]):
-        if len(subprotocols) != 2:
-            return False
-        if subprotocols[0] != 'Authorization':
-            return False
-        if subprotocols[1] != f'bearer-{wstoken}':
-            return False
-        return True
-
-    if not await is_authorized(websocket.scope['subprotocols']):
-        await access.add_fail_time_async()
-        raise HTTPException(status_code=400, detail='无效密钥')
-    await websocket.accept('Authorization')  # 前后端都要有 Authorization 子协议，否则无法建立连接
-
-    try:
-        # 首次传输：初始化
-        noteapi_info = await websocket.receive_json()
-
-        address = noteapi_info['address']
-        token = noteapi_info['token']
-        path = noteapi_info['path']
-        setting = noteapi_info['setting']
-
-        await noteapi.set_online(address, token, path, setting, websocket)
-
-        # 后续传输：Obsidian 消息事件
-        while True:
-            await websocket.receive_json()
-    except WebSocketDisconnect:
-        pass
-    finally:
-        await noteapi.set_offline(address, token)  # type: ignore
 
 # - [ ] 临时：RPC 测试
 from asyncio import Event
