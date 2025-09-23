@@ -218,8 +218,8 @@ app.include_router(router_profile)
 from deskset.router.greet import router_greet
 app.include_router(router_greet)
 
-from deskset.router.current import router_datetime
-app.include_router(router_datetime)
+# from deskset.router.current import router_datetime
+# app.include_router(router_datetime)
 
 # from deskset.router.cloud import router_cloud
 # app.include_router(router_cloud)
