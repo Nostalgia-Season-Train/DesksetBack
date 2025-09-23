@@ -14,6 +14,3 @@ router_note.include_router(router_obsidian_manager)
 
 from .obsidian import router_obsidian
 router_note.include_router(router_obsidian)
-
-from .scheduler import router_apscheduler
-router_note.include_router(router_apscheduler)

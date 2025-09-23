@@ -45,7 +45,7 @@ logging.info(f'Server URL is http://{server_host}:{server_port}')
 # ==== Lifespan 生命周期 ====
 from contextlib import asynccontextmanager
 
-from deskset.feature.note import apscheduler as note_apscheduler
+# from deskset.feature.note import apscheduler as note_apscheduler
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -53,10 +53,10 @@ async def lifespan(app: FastAPI):
     print(f'{{"url": "{server_host}:{server_port}", "token": "{access._token}"}}', flush=True)
 
     logging.info('start lifespan')
-    note_apscheduler.start()  # 不用 paused=True 暂停，uvicorn.run 自然启停
+    # note_apscheduler.start()  # 不用 paused=True 暂停，uvicorn.run 自然启停
     yield
     logging.info('finish lifespan')
-    note_apscheduler.shutdown()
+    # note_apscheduler.shutdown()
 
 
 # ==== FastAPI 应用 ====
